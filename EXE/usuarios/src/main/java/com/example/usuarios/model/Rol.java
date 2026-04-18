@@ -18,7 +18,7 @@ public class Rol {
     @Column(nullable = false, unique = true, length = 50)
     private String nombre;
 
-    // Constructor solo con nombre (util para crear roles)
+    // Constructor solo con nombr, sirve para la creacion de roles
     public Rol(String nombre) {
         this.nombre = nombre;
     }
