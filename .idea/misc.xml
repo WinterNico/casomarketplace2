@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ExternalStorageConfigurationManager" enabled="true" />
+  <component name="MavenProjectsManager">
+    <option name="originalFiles">
+      <list>
+        <option value="$PROJECT_DIR$/EXE/pagos/pom.xml" />
+        <option value="$PROJECT_DIR$/EXE/usuarios/pom.xml" />
+        <option value="$PROJECT_DIR$/EXE/autenticacion/pom.xml" />
+        <option value="$PROJECT_DIR$/EXE/notificaciones/pom.xml" />
+        <option value="$PROJECT_DIR$/JAVI/envio/pom.xml" />
+        <option value="$PROJECT_DIR$/JAVI/pedidos/pom.xml" />
+        <option value="$PROJECT_DIR$/JAVI/busqueda/pom.xml" />
+        <option value="$PROJECT_DIR$/NICO/carro/pom.xml" />
+        <option value="$PROJECT_DIR$/NICO/catalogo/pom.xml" />
+        <option value="$PROJECT_DIR$/NICO/inventario/pom.xml" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectInspectionProfilesVisibleTreeState">
+    <entry key="Project Default">
+      <profile-state>
+        <selected-state>
+          <State>
+            <id>Proofreading</id>
+          </State>
+        </selected-state>
+      </profile-state>
+    </entry>
+  </component>
+  <component name="ProjectRootManager" version="2">
+    <output url="file://$PROJECT_DIR$/out" />
+  </component>
+</project>
