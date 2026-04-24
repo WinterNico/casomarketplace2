@@ -14,8 +14,8 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "usuarios")
 public class Usuario {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,16 +27,16 @@ public class Usuario {
     private String password;
 
     @Column(nullable = false, length = 50)
-    private String nombre;
+    private String name;
 
     @Column(length = 20)
-    private String telefono;
+    private String phone;
 
     @Column(nullable = false)
     private Boolean activo = true;
 
     @Column(nullable = false)
-    private LocalDateTime fechaRegistro;
+    private LocalDateTime registrationDate;
 
     // ESTO SIRVE PARA RELACION CON ROLES //
     @ManyToMany(fetch = FetchType.EAGER)
@@ -47,7 +47,6 @@ public class Usuario {
     )
     private Set<Rol> roles = new HashSet<>();
 
-
     // Metodo utilitario para agregar roles
     public void agregarRol(Rol rol) {
         this.roles.add(rol);
@@ -56,10 +55,12 @@ public class Usuario {
     // Se ejecuta ANTES de insertar en la BD
     @PrePersist
     public void prePersist() {
-        this.fechaRegistro = LocalDateTime.now();
+        this.registrationDate = LocalDateTime.now();
         if (this.activo == null) {
             this.activo = true;
         }
     }
+
+
 
 }

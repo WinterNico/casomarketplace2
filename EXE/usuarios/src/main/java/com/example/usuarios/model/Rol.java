@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "roles")
 public class Rol {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -22,4 +22,5 @@ public class Rol {
     public Rol(String nombre) {
         this.nombre = nombre;
     }
+
 }
