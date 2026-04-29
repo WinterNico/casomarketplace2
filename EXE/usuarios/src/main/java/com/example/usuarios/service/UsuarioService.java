@@ -1,5 +1,7 @@
 package com.example.usuarios.service;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
 import com.example.usuarios.dto.RegistroRequest;
 import com.example.usuarios.model.Rol;
 import com.example.usuarios.model.Usuario;
@@ -23,21 +25,29 @@ public class UsuarioService {
     }
 
     public Usuario registrarUsuario(RegistroRequest request) {
-        // Validamos si el email ya existe
-        if (usuarioRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("El email ya está registrado");
-        }
-
-        // Buscamos el rol para asignar privilegios diferentes [cite: 15]
         Rol rol = rolRepository.findByNombre(request.getNameRol())
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
 
         Usuario usuario = new Usuario();
-        usuario.setEmail(request.getEmail());
 
-        // Encriptamos la contraseña antes de almacenarla
+        // Seteamos los datos básicos que vienen del DTO
+        usuario.setName(request.getName());
+        usuario.setEmail(request.getEmail());
         usuario.setPassword(passwordEncoder.encode(request.getPassword()));
-        usuario.setRoles(rol);
+
+        if (request.getPhone() != null) {
+            usuario.setPhone(request.getPhone());
+        }
+
+        // Seteamos la fecha automática de registro (es obligatorio según tu entidad)
+        usuario.setRegistrationDate(LocalDateTime.now());
+
+        // Nos aseguramos de que entre como activo
+        usuario.setActivo(true);
+
+        // ¡AQUÍ ESTÁ LA MAGIA PARA EL SET DE ROLES!
+        // Envolvemos el rol único en un Set para que Spring no tire el error de Cast
+        usuario.setRoles(Collections.singleton(rol));
 
         return usuarioRepository.save(usuario);
     }

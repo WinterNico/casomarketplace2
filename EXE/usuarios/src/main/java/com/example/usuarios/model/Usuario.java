@@ -2,9 +2,7 @@ package com.example.usuarios.model;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -14,6 +12,8 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
 @Table(name = "usuarios")
 public class Usuario {
     @Id
@@ -60,7 +60,6 @@ public class Usuario {
             this.activo = true;
         }
     }
-
 
 
 }
