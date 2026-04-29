@@ -13,4 +13,15 @@ public class Carro {
     private Long userId;
     private Long productId;
     private Integer quantity;
+
+    private String productName;
+    private Double unitPrice;
+
+    public Double getTotalPrice() {
+        if (this.unitPrice == null || this.quantity == null) {
+            return 0.0;
+        }
+
+        return this.unitPrice * this.quantity;
+    }
 }

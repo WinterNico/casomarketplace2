@@ -12,14 +12,10 @@ import org.springframework.web.bind.annotation.*;
 public class InventarioController {
     @Autowired
     private InventarioService inventarioService;
-
-    // Este es el endpoint exacto que tu Carrito está llamando por detrás
     @GetMapping("/{productId}")
     public Boolean checkStock(@PathVariable Long productId, @RequestParam Integer quantityRequired) {
         return inventarioService.checkStock(productId, quantityRequired);
     }
-
-    // Endpoint para que tú puedas crear inventario desde Postman y hacer pruebas
     @PostMapping("/add")
     public ResponseEntity<Inventario> addStock(@RequestBody Inventario inventory) {
         return new ResponseEntity<>(inventarioService.addStock(inventory), HttpStatus.CREATED);

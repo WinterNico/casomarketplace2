@@ -8,22 +8,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/productos")
+@RequestMapping("/api/catalogo")
 public class ProductoController {
-
     @Autowired
     private ProductoService service;
 
-    @PostMapping
-    public ResponseEntity<Producto> crearProducto(@RequestBody Producto producto) {
-        Producto nuevoProducto = service.crearProducto(producto);
-        return new ResponseEntity<>(nuevoProducto, HttpStatus.CREATED);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getProducto(@PathVariable Long id){
+        Optional<Producto> producto = service.getProductoById(id);
+        if (producto.isPresent()){
+            return new ResponseEntity<>(producto.get(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>("producto no encontrado", HttpStatus.NOT_FOUND);
     }
 
-    @GetMapping
-    public ResponseEntity<List<Producto>> obtenerTodos() {
-        return new ResponseEntity<>(service.obtenerTodos(), HttpStatus.OK);
+    @PostMapping("/add")
+    public ResponseEntity<Producto> addProducto(@RequestBody Producto producto){
+        return new ResponseEntity<>(service.addProducto(producto), HttpStatus.CREATED);
     }
 }
+
+

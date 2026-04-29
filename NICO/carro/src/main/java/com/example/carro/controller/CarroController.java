@@ -38,4 +38,9 @@ public class CarroController {
         cartService.removeFromCart(itemId);
         return new ResponseEntity<>("Ítem eliminado del carrito", HttpStatus.OK);
     }
+
+    @GetMapping("/{userId}/total")
+    public ResponseEntity<Double> getTotal(@PathVariable Long userId) {
+        return new ResponseEntity<>(cartService.getCartTotal(userId), HttpStatus.OK);
+    }
 }
