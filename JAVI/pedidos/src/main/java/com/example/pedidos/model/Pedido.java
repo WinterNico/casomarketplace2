@@ -22,7 +22,7 @@ public class Pedido {
     @Column(name = "usuario_id", nullable = false)
     private Long userId;
 
-    @Column(name = "fecha_creacion", nullable = false)
+    @Column(name = "fecha-creacion", nullable = false)
     private LocalDateTime creationDate;
 
     // Podría ser un String o un Enum (ej: PENDIENTE, PAGADO, ENVIADO)
