@@ -25,6 +25,10 @@ public class UsuarioService {
     }
 
     public Usuario registrarUsuario(RegistroRequest request) {
+        if (usuarioRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("El correo " + request.getEmail() + " ya se encuentra registrado en el sistema.");
+        }
+
         Rol rol = rolRepository.findByNombre(request.getNameRol())
                 .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
 
@@ -51,4 +55,15 @@ public class UsuarioService {
 
         return usuarioRepository.save(usuario);
     }
+
+    public Usuario buscarPorEmail(String email) {
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con el correo: " + email));
+    }
+
+    public Usuario buscarPorId(Long id) {
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado con el ID: " + id));
+    }
+
 }

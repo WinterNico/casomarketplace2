@@ -17,7 +17,7 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Deshabilitamos CSRF temporalmente para poder probar en Postman
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/usuarios/registro").permitAll() // Permitimos el acceso libre al registro
+                        .requestMatchers("/api/v1/usuarios/**", "/error").permitAll()
                         .anyRequest().authenticated() // Bloqueamos todo lo demás
                 );
 

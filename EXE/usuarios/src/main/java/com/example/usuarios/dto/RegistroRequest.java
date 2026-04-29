@@ -1,20 +1,36 @@
 package com.example.usuarios.dto;
 
-import lombok.Data;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.Singular;
 
 
 // ESTA CLASE ES PARA HACER REGISTRO DE LO QUE RECIBE
 @Getter
 @Setter
 public class RegistroRequest {
+
+    @NotBlank(message = "El nombre es obligatorio")
     private String name;
+
+    @NotBlank(message = "El correo es obligatorio")
+    @Email(message = "Debe tener formato de correo electronico")
     private String email;
+
+    @NotBlank(message = "La contraseña es obligatoria")
+    @Size(min = 6, message = "La contraseña debe contener al menos 6 caracteres")
     private String password;
+
+    @NotBlank(message = "El rol es obligatorio")
     private String nameRol;
+
     private String phone;
 
+
+    // METODOS //
     public String getName() {
         return name;
     }
