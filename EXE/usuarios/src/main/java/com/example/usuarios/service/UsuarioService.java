@@ -26,7 +26,7 @@ public class UsuarioService {
 
     public Usuario registrarUsuario(RegistroRequest request) {
         if (usuarioRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("El correo " + request.getEmail() + " ya se encuentra registrado en el sistema.");
+            throw new RuntimeException("El correo ya se encuentra registrado en el sistema.");
         }
 
         Rol rol = rolRepository.findByNombre(request.getNameRol())
@@ -49,7 +49,6 @@ public class UsuarioService {
         // Nos aseguramos de que entre como activo
         usuario.setActivo(true);
 
-        // ¡AQUÍ ESTÁ LA MAGIA PARA EL SET DE ROLES!
         // Envolvemos el rol único en un Set para que Spring no tire el error de Cast
         usuario.setRoles(Collections.singleton(rol));
 

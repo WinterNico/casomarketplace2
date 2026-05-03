@@ -13,6 +13,7 @@ import lombok.Singular;
 @Setter
 public class RegistroRequest {
 
+    // actualizacion para forzar git subir
     @NotBlank(message = "El nombre es obligatorio")
     private String name;
 
@@ -28,7 +29,6 @@ public class RegistroRequest {
     private String nameRol;
 
     private String phone;
-
 
     // METODOS //
     public String getName() {

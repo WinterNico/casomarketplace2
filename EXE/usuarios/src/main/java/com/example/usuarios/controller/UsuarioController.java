@@ -46,12 +46,17 @@ public class UsuarioController {
 
 
 
+
+
+
+
+
+
         if (result.hasErrors()) {
             // Extraemos el mensaje de error que escribiste en el DTO y devolvemos un 400 limpiecito
             String mensajeError = result.getFieldError().getDefaultMessage();
             return new ResponseEntity<>(mensajeError, HttpStatus.BAD_REQUEST);
         }
-
 
         try {
             // Llamamos a la lógica de negocio que armamos antes
