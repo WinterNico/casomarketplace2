@@ -43,15 +43,6 @@ public class UsuarioController {
     @PostMapping("/registro")
     public ResponseEntity<?> registrarUsuario(@Valid @RequestBody RegistroRequest request, BindingResult result) {
 
-
-
-
-
-
-
-
-
-
         if (result.hasErrors()) {
             // Extraemos el mensaje de error que escribiste en el DTO y devolvemos un 400 limpiecito
             String mensajeError = result.getFieldError().getDefaultMessage();
