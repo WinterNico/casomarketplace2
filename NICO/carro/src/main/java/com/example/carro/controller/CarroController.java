@@ -34,9 +34,9 @@ public class CarroController {
     }
 
     @DeleteMapping("/remove/{itemId}")
-    public ResponseEntity<String> removeItem(@PathVariable Long itemId) {
+    public ResponseEntity<?> removeItem(@PathVariable Long itemId) {
         cartService.removeFromCart(itemId);
-        return new ResponseEntity<>("Ítem eliminado del carrito", HttpStatus.OK);
+        return new ResponseEntity<>(java.util.Map.of("mensaje", "Ítem eliminado del carrito"), HttpStatus.OK);
     }
 
     @GetMapping("/{userId}/total")

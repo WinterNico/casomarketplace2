@@ -1,42 +1,43 @@
 package com.example.carro.service;
 
 import com.example.carro.DTO.ProductoDTO;
+import com.example.carro.client.CatalogoClient;
+import com.example.carro.client.InventarioClient;
 import com.example.carro.model.Carro;
 import com.example.carro.repository.CarroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
 public class CarroService {
+
     @Autowired
     private CarroRepository carroRepository;
 
     @Autowired
-    private RestTemplate restTemplate;
+    private CatalogoClient catalogoClient;
 
-    private final String INVENTORY_URL = "http://localhost:8082/api/inventory";
-
-    private final String CATALOGO_URL = "http://localhost:8081/api/catalogo";
+    @Autowired
+    private InventarioClient inventarioClient;
 
     public Carro addToCart(Long userId, Long productId, Integer quantity) {
-        String catalogoUrl = CATALOGO_URL + "/" + productId;
+
         ProductoDTO producto;
         try {
-            producto = restTemplate.getForObject(catalogoUrl, ProductoDTO.class);
+            producto = catalogoClient.getProducto(productId);
         } catch (Exception e) {
             throw new RuntimeException("El producto no existe en el catálogo.");
         }
 
-        String url = INVENTORY_URL + "/" + productId + "?quantityRequired=" + quantity;
-        Boolean isStockAvailable = restTemplate.getForObject(url, Boolean.class);
+        Boolean isStockAvailable = inventarioClient.checkStock(productId, quantity);
 
         if (Boolean.FALSE.equals(isStockAvailable)) {
             throw new RuntimeException("No hay stock suficiente para el producto: " + productId);
         }
+
         Optional<Carro> existingItem = carroRepository.findByUserIdAndProductId(userId, productId);
 
         if (existingItem.isPresent()) {
