@@ -70,4 +70,11 @@ public class PedidoController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
+    //7 Eliminar un pedido
+    // Se consume con un DELETE a http://localhost:8080/api/pedidos/1
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletePedido(@PathVariable Long id){
+        pedidoService.deletePedido(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT); //RETORNA 204 No content
+    }
 }
