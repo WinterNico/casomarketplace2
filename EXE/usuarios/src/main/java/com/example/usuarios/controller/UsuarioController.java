@@ -4,7 +4,8 @@ import com.example.usuarios.dto.RegistroRequest;
 import com.example.usuarios.model.Usuario;
 import com.example.usuarios.service.UsuarioService;
 import jakarta.validation.Valid;
-import org.springframework.validation.BindingResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,53 +14,33 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/usuarios")
 public class UsuarioController {
 
+    private static final Logger log = LoggerFactory.getLogger(UsuarioController.class);
     private final UsuarioService usuarioService;
+
     public UsuarioController(UsuarioService usuarioService) {
         this.usuarioService = usuarioService;
     }
 
-    // GET //
     @GetMapping("/buscar/{email}")
-    public ResponseEntity<?> obtenerUsuarioPorEmail(@PathVariable String email) {
-        try {
-            Usuario usuario = usuarioService.buscarPorEmail(email);
-            return new ResponseEntity<>(usuario, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Usuario> obtenerUsuarioPorEmail(@PathVariable String email) {
+        log.info("Petición REST para buscar usuario por email: {}", email);
+        Usuario usuario = usuarioService.buscarPorEmail(email);
+        return new ResponseEntity<>(usuario, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> obtenerUsuarioPorId(@PathVariable Long id) {
-        try {
-            Usuario usuario = usuarioService.buscarPorId(id);
-            return new ResponseEntity<>(usuario, HttpStatus.OK);
-        } catch (RuntimeException e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
-        }
+    public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable Long id) {
+        log.info("Petición REST para buscar usuario por ID: {}", id);
+        Usuario usuario = usuarioService.buscarPorId(id);
+        return new ResponseEntity<>(usuario, HttpStatus.OK);
     }
 
-    // POST //
     @PostMapping("/registro")
-    public ResponseEntity<?> registrarUsuario(@Valid @RequestBody RegistroRequest request, BindingResult result) {
+    public ResponseEntity<Usuario> registrarUsuario(@Valid @RequestBody RegistroRequest request) {
+        log.info("Petición REST para registrar un nuevo usuario con email: {}", request.getEmail());
 
-        if (result.hasErrors()) {
-            // Extraemos el mensaje de error que escribiste en el DTO y devolvemos un 400 limpiecito
-            String mensajeError = result.getFieldError().getDefaultMessage();
-            return new ResponseEntity<>(mensajeError, HttpStatus.BAD_REQUEST);
-        }
-
-        try {
-            // Llamamos a la lógica de negocio que armamos antes
-            Usuario nuevoUsuario = usuarioService.registrarUsuario(request);
-
-            // Si todo sale bien, retornamos un 201 (Created) y los datos del usuario
-            return new ResponseEntity<>(nuevoUsuario, HttpStatus.CREATED);
-
-        } catch (RuntimeException e) {
-            // Si falla alguna validación (ej. el correo ya existe o el rol no es válido)
-            // Retornamos un 400 (Bad Request) con el mensaje de error
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        // Ya no necesitamos el BindingResult ni los try-catch. Si algo falla, el @ControllerAdvice lo atrapa.
+        Usuario nuevoUsuario = usuarioService.registrarUsuario(request);
+        return new ResponseEntity<>(nuevoUsuario, HttpStatus.CREATED);
     }
 }
