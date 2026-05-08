@@ -10,7 +10,8 @@ public class CatalogoClient {
     private final WebClient webClient;
 
     public CatalogoClient(WebClient.Builder webClientBuilder) {
-        this.webClient = webClientBuilder.baseUrl("http://localhost:8081/api/catalogo").build();
+        //CAMBIAR ESTO ADEMAS DEL APPLICATION.PROPERTIES EN EL CASO DE QUE UN PUERTO ESTE USADO, FLUCTUO ENTRE 8081/8084
+        this.webClient = webClientBuilder.baseUrl("http://localhost:8084/api/catalogo").build();
     }
 
     public ProductoDTO getProducto(Long id) {
