@@ -3,6 +3,9 @@ package com.example.autenticacion.controller;
 import com.example.autenticacion.dto.LoginRequest;
 import com.example.autenticacion.dto.TokenResponse;
 import com.example.autenticacion.service.AuthService;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private final AuthService authService;
 
     public AuthController(AuthService authService) {
@@ -18,17 +22,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
-        try {
-            // Le pedimos al servicio que procese el login y nos dé el token
-            String token = authService.procesarLogin(request);
+    public ResponseEntity<TokenResponse> login(@Valid @RequestBody LoginRequest request) {
+        log.info("Petición REST de login recibida para el correo: {}", request.getEmail());
 
-            // Lo empaquetamos bonito y devolvemos un 200 OK
-            return new ResponseEntity<>(new TokenResponse(token), HttpStatus.OK);
+        String token = authService.procesarLogin(request);
+        log.info("Login exitoso. Token generado para: {}", request.getEmail());
 
-        } catch (RuntimeException e) {
-            // Si falla la contraseña o el correo, devolvemos un 401 Unauthorized
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
-        }
+        return new ResponseEntity<>(new TokenResponse(token), HttpStatus.OK);
     }
 }
