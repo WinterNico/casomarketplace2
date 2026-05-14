@@ -4,6 +4,7 @@ import com.example.pedidos.model.Pedido;
 import com.example.pedidos.repository.PedidoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,12 +16,30 @@ public class PedidoService {
     @Autowired
     private PedidoRepository pedidoRepository;
 
+    @Autowired
+    private WebClient.Builder webClientBuilder;
+
     // 1. Crear un nuevo pedido (Aplica reglas de negocio)
     public Pedido createPedido(Pedido pedido){
         pedido.setCreationDate(LocalDateTime.now());//Cuando nace un pedido, se le asigna la fecha actual y estado PENDIENTE
         pedido.setState("PENDIENTE");
 
-        return pedidoRepository.save(pedido);
+        Pedido pedidoGuardado = pedidoRepository.save(pedido);
+
+        // --- LLAMADA A ENVÍOS ---
+        try {
+            webClientBuilder.build()
+                    .post()
+                    .uri("http://localhost:8083/api/v1/envios")
+                    .bodyValue(pedidoGuardado)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .subscribe(response -> System.out.println("Respuesta de Envíos: " + response));
+        } catch (Exception e) {
+            System.out.println("Error al contactar Envíos: " + e.getMessage());
+        }
+
+        return pedidoGuardado;
     }
 
     // 2. Obtener todos los pedidos

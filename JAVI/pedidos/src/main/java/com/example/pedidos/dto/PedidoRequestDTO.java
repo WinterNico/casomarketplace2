@@ -3,6 +3,8 @@ package com.example.pedidos.dto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
+import java.math.BigDecimal;
+
 public class PedidoRequestDTO {
 
     @NotNull(message = "El ID del usuario es obligatorio")
@@ -10,14 +12,14 @@ public class PedidoRequestDTO {
 
     @NotNull(message = "El total es obligatorio")
     @Positive(message = "El total debe ser mayor a cero")
-    private Double total;
+    private BigDecimal total;
 
     //Costructores vacios y con parametros
 
     public PedidoRequestDTO(){}
 
     //getters y setters
-    public Long getUserId() {
+    public Long getUserId(){
         return userId;
     }
 
@@ -25,11 +27,11 @@ public class PedidoRequestDTO {
         this.userId = userId;
     }
 
-    public Double getTotal() {
+    public BigDecimal getTotal() {
         return total;
     }
 
-    public void setTotal(Double total) {
+        public void setTotal(BigDecimal total) {
         this.total = total;
     }
 }
