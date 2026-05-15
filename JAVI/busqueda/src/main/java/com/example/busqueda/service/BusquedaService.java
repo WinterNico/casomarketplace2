@@ -21,7 +21,7 @@ public class BusquedaService {
 
         return Mono.zip(
                 pedidoClient.get().uri("/{id}", id).retrieve().bodyToMono(Map.class),
-                envioClient.get().uri("/pedido/{id}", id).retrieve().bodyToMono(Map.class)
+                envioClient.get().uri("/order/{id}", id).retrieve().bodyToMono(Map.class)
         ).map(tuple -> {
             Map pedido = tuple.getT1();
             Map envio = tuple.getT2();
