@@ -29,6 +29,7 @@ public class PagoService {
         String estado = "APROBADO";
         String mensaje = "Pago procesado correctamente";
 
+        // Si la tarjeta termina en 444 dara error
         if (request.getNumeroTarjeta() != null && request.getNumeroTarjeta().endsWith("4444")) {
             estado = "RECHAZADO";
             mensaje = "Fondos insuficientes o tarjeta bloqueada";

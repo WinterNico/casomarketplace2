@@ -15,7 +15,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Inyectamos nuestro nuevo filtro
     private final JwtTokenFilter jwtTokenFilter;
 
     public SecurityConfig(JwtTokenFilter jwtTokenFilter) {
@@ -28,14 +27,11 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Sigue el acceso libre para el registro y los errores
                         .requestMatchers(
                                 "/error"
                         ).permitAll()
-                        // TODO LO DEMÁS AHORA ESTÁ PROTEGIDO CON TOKEN
                         .anyRequest().authenticated()
                 )
-                // ¡LA MAGIA! Ponemos nuestro filtro de aduana antes del guardia por defecto
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

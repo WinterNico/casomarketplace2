@@ -15,7 +15,7 @@ public class NotificacionRequest {
     @NotBlank(message = "El mensaje no puede estar vacío")
     private String mensaje;
 
-    // Getters y Setters (los mismos de antes)
+    // Getters y Setters
     public String getEmailDestino() { return emailDestino; }
     public void setEmailDestino(String emailDestino) { this.emailDestino = emailDestino; }
     public String getAsunto() { return asunto; }

@@ -22,8 +22,7 @@ public class NotificacionController {
     public ResponseEntity<Notificacion> enviarNotificacion(@Valid @RequestBody NotificacionRequest request) {
         // Al poner @Valid, Spring Boot revisa los @NotBlank antes de entrar aquí
         Notificacion guardada = notificacionService.enviarYGuardar(request);
-
-        // Retornamos el objeto creado con código 201 Created
+        // Retornamos 201
         return ResponseEntity.status(HttpStatus.CREATED).body(guardada);
     }
 }

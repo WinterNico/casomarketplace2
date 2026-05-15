@@ -20,24 +20,19 @@ import java.util.Collections;
 @Component
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-    // ¡CRÍTICO! Esta clave TIENE que ser exactamente la misma que pusiste en ms-autenticacion
     private final String jwtSecret = "EstaEsUnaClaveSecretaSuperSeguraParaElMarketplaceDuoc2026!";
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // 1. Buscamos el token en la cabecera de la petición
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7); // Le cortamos la palabra "Bearer "
 
             try {
-                // 2. Preparamos la llave para abrirlo
                 Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
-
-                // 3. Abrimos el token y sacamos los datos que guardamos antes
                 Claims claims = Jwts.parserBuilder()
                         .setSigningKey(key)
                         .build()
@@ -47,7 +42,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 String email = claims.getSubject();
                 String rol = claims.get("rol", String.class);
 
-                // 4. Le avisamos a Spring Security que el usuario es válido
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         email,
                         null,
@@ -57,12 +51,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
 
             } catch (Exception e) {
-                // Si el token fue modificado por un hacker o ya caducó, se ignora
                 System.out.println("Token inválido o expirado: " + e.getMessage());
             }
         }
 
-        // 5. Dejamos que la petición siga su curso hacia el Controlador
         filterChain.doFilter(request, response);
     }
 }

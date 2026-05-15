@@ -30,7 +30,7 @@ public class AuthService {
         UsuarioResponse usuarioEncontrado;
 
         try {
-            // 1. LLAMADA AL VECINO
+            // Llama a usuarios
             usuarioEncontrado = webClientBuilder.build()
                     .get()
                     .uri("http://localhost:9091/api/v1/usuarios/buscar/" + request.getEmail())
@@ -48,13 +48,13 @@ public class AuthService {
             throw new RuntimeException("El servicio de autenticación no está disponible en este momento");
         }
 
-        // 2. CHOQUE DE CONTRASEÑAS
+        // Validacion de contraseñas
         if (!passwordEncoder.matches(request.getPassword(), usuarioEncontrado.getPassword())) {
             log.warn("Contraseña incorrecta ingresada para el correo: {}", request.getEmail());
             throw new RuntimeException("Credenciales incorrectas (Contraseña mala)");
         }
 
-        // 3. FABRICAR EL TOKEN
+        // Se fabrica como tal el token
         try {
             String nombreRol = usuarioEncontrado.getRoles().get(0).getNombre();
             log.info("Validacion exitosa. Generando token para rol: {}", nombreRol);

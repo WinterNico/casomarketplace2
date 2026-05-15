@@ -7,7 +7,6 @@ public class UsuarioResponse {
     private String email;
     private String password;
 
-    // ¡AQUÍ ESTÁ LA CLAVE! Es una Lista y se llama "roles"
     private List<RolResponse> roles;
 
     // Getters y Setters

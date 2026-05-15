@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    // Atrapa cualquier otro error general de negocio
+    // Atrapa cualquier otro error general
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntimeExceptions(RuntimeException ex) {
         log.error("Excepción en Notificaciones: {}", ex.getMessage());

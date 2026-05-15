@@ -17,7 +17,7 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // 1. Atrapa los errores de Validación de los DTOs (@NotBlank, @Email, etc.)
+    // Atrapa los errores de Validación de los DTOs (@NotBlank, @Email, etc.)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
@@ -31,7 +31,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-    // 2. Atrapa nuestros RuntimeException ("El correo ya existe", "Usuario no encontrado")
+    // Atrapa nuestros RuntimeException ("El correo ya existe", "Usuario no encontrado")
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<Map<String, String>> handleRuntimeExceptions(RuntimeException ex) {
         log.error("Excepción de negocio: {}", ex.getMessage());

@@ -13,7 +13,6 @@ import lombok.Singular;
 @Setter
 public class RegistroRequest {
 
-    // actualizacion para forzar git subir
     @NotBlank(message = "El nombre es obligatorio")
     private String name;
 

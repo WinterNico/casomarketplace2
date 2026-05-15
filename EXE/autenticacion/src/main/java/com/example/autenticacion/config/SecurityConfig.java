@@ -15,9 +15,8 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Clásico para APIs REST
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        // ¡Vía libre absoluta a la ruta de login y a los errores!
                         .requestMatchers("/api/v1/auth/login", "/error").permitAll()
                         .anyRequest().authenticated()
                 );
@@ -26,7 +25,6 @@ public class SecurityConfig {
     }
 
     // Declaramos el PasswordEncoder aquí para que el AuthService pueda usarlo
-    // y comparar la contraseña en texto plano con la encriptada
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

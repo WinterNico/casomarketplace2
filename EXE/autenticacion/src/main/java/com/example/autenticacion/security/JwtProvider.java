@@ -8,33 +8,30 @@ import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
 
-@Component // Esto le dice a Spring: "Guarda esta fábrica para que la podamos usar en otras partes"
+@Component // Se guarda para ocuparlo en otras partes
 public class JwtProvider {
 
-    // 1. LA CLAVE SECRETA: Es la firma de tu API.
-    // Si alguien no tiene esta clave exacta, no puede falsificar tus tokens.
-    // OJO: Para el algoritmo HS256, la clave debe tener mínimo 32 caracteres (256 bits).
+    // Clave 256
     private final String jwtSecret = "EstaEsUnaClaveSecretaSuperSeguraParaElMarketplaceDuoc2026!";
 
-    // 2. EL TIEMPO DE VIDA: ¿Cuánto dura el token antes de vencer?
-    // Aquí le pusimos 1 hora (3600000 milisegundos).
-    private final int jwtExpirationMs = 3600000;
+    // Tiempo del TOKEN
+    private final int jwtExpirationMs = 86400000; // 1 dia, para 1 hora son 3600000
 
-    // 3. LA FÁBRICA: El método que recibe los datos y escupe el token
+    // Este metodo recibe el token tmb
     public String generarToken(String email, Long idUsuario, String rol) {
 
-        // Transformamos tu clave secreta de texto a una "Llave Criptográfica" real
+        // Se transforma la clave
         Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
 
-        // Aquí armamos el JSON Web Token
+        // Se arma el json web token
         return Jwts.builder()
-                .setSubject(email)                           // El sujeto principal (el correo)
-                .claim("id", idUsuario)                      // Dato extra: El ID (útil para el frontend)
-                .claim("rol", rol)                           // Dato extra: El Rol (Cliente, Vendedor, etc.)
-                .setIssuedAt(new Date())                     // Fecha de emisión (Ahora mismo)
+                .setSubject(email)
+                .claim("id", idUsuario)
+                .claim("rol", rol)
+                .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs)) // Fecha de caducidad
                 .signWith(key, SignatureAlgorithm.HS256)     // Firmamos el token con la llave y el algoritmo
-                .compact();                                  // Lo empaquetamos todo en ese String larguísimo
+                .compact();                                  // Lo empaquetamos todo en ese string de 256
     }
 }
 

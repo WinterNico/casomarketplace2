@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class NotificacionService {
 
-    // Instanciamos el Logger (SLF4J)
+    // Instanciamos el Logger
     private static final Logger log = LoggerFactory.getLogger(NotificacionService.class);
 
     private final NotificacionRepository notificacionRepository;
@@ -22,18 +22,18 @@ public class NotificacionService {
     public Notificacion enviarYGuardar(NotificacionRequest request) {
         log.info("Iniciando proceso de envío de notificación a: {}", request.getEmailDestino());
 
-        // 1. Convertimos el DTO a Entidad
+        // Convertimos el DTO a Entidad
         Notificacion nuevaNotificacion = new Notificacion();
         nuevaNotificacion.setEmailDestino(request.getEmailDestino());
         nuevaNotificacion.setAsunto(request.getAsunto());
         nuevaNotificacion.setMensaje(request.getMensaje());
 
-        // 2. Guardamos en la Base de Datos (Persistencia Real)
+        // Guardamos en la Base de Datos
         Notificacion notificacionGuardada = notificacionRepository.save(nuevaNotificacion);
 
         log.info("Notificación guardada en BD con ID: {}", notificacionGuardada.getId());
 
-        // 3. Simulamos el envío
+        // Simulamos el envío
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {

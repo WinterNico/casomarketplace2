@@ -38,8 +38,6 @@ public class UsuarioController {
     @PostMapping("/registro")
     public ResponseEntity<Usuario> registrarUsuario(@Valid @RequestBody RegistroRequest request) {
         log.info("Petición REST para registrar un nuevo usuario con email: {}", request.getEmail());
-
-        // Ya no necesitamos el BindingResult ni los try-catch. Si algo falla, el @ControllerAdvice lo atrapa.
         Usuario nuevoUsuario = usuarioService.registrarUsuario(request);
         return new ResponseEntity<>(nuevoUsuario, HttpStatus.CREATED);
     }
