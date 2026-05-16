@@ -38,7 +38,7 @@
             nuevoPedido.setTotal(pedidoDTO.getTotal());
 
             // Le pasamos el token al servicio para que se lo envíe a Envíos
-            Pedido pedidoGuardado = pedidoService.createPedido(nuevoPedido, token);
+            Pedido pedidoGuardado = pedidoService.createPedido(nuevoPedido, token, pedidoDTO.getTarjeta());
 
             log.info("Pedido creado exitosamente con un total de: {}", pedidoGuardado.getTotal());
 

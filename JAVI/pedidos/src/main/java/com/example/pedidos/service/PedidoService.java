@@ -26,32 +26,70 @@ public class PedidoService {
     private WebClient.Builder webClientBuilder;
 
     // Crea el pedido y recibe el token
-    public Pedido createPedido(Pedido pedido, String token){
+    public Pedido createPedido(Pedido pedido, String token, String tarjeta){
         pedido.setCreationDate(LocalDateTime.now());
-        pedido.setState("PENDIENTE");
+        pedido.setState("PROCESANDO"); // Estado inicial
 
         Pedido pedidoGuardado = pedidoRepository.save(pedido);
 
-        // Preparamos el JSON exacto que espera el ms de envio
-        Map<String, Long> envioRequest = new HashMap<>();
-        envioRequest.put("id", pedidoGuardado.getId());
-
-        // --- LLAMADA A ENVÍOS ---
         try {
-            log.info("Avisando a ms-envios para generar el tracking...");
-            webClientBuilder.build()
-                    .post()
+            log.info("1. Validando pago con MS-Pagos...");
+            // Armamos el JSON que espera Pagos
+            Map<String, Object> pagoRequest = new HashMap<>();
+            pagoRequest.put("idPedido", pedidoGuardado.getId());
+            pagoRequest.put("numeroTarjeta", tarjeta);
+            pagoRequest.put("monto", pedido.getTotal());
+
+            // Llamamos a Pagos (usamos .block() para que espere la respuesta)
+            webClientBuilder.build().post()
+                    .uri("http://localhost:9093/api/v1/pagos/procesar")
+                    .header("Authorization", token)
+                    .bodyValue(pagoRequest)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            // Si llegamos a esta línea, es porque Pagos NO tiró error (tarjeta válida)
+            pedidoGuardado.setState("PAGADO");
+            pedidoRepository.save(pedidoGuardado);
+
+            log.info("2. Pago exitoso. Avisando a MS-Envios...");
+            Map<String, Long> envioRequest = new HashMap<>();
+            envioRequest.put("id", pedidoGuardado.getId());
+
+            webClientBuilder.build().post()
                     .uri("http://localhost:8083/api/v1/envios")
                     .header("Authorization", token)
                     .bodyValue(envioRequest)
                     .retrieve()
                     .bodyToMono(String.class)
-                    .subscribe(
-                            response -> log.info("Respuesta exitosa de Envíos: {}", response),
-                            error -> log.error("Fallo al crear el envío remoto: {}", error.getMessage())
-                    );
+                    .block();
+
+            Map<String, Object> notiRequest = new HashMap<>();
+
+            log.info("3. Envío creado. Disparando MS-Notificaciones...");
+            notiRequest.put("emailDestino", "cliente_" + pedidoGuardado.getUserId() + "@duoc.cl");
+            notiRequest.put("asunto", "Confirmación de Pedido #" + pedidoGuardado.getId());
+            notiRequest.put("mensaje", "¡Tu compra por $" + pedido.getTotal() + " fue aprobada y se está preparando!");
+
+            webClientBuilder.build().post()
+                    .uri("http://localhost:9094/api/v1/notificaciones/enviar")
+                    .header("Authorization", token)
+                    .bodyValue(notiRequest)
+                    .retrieve()
+                    .bodyToMono(String.class)
+                    .block();
+
+            log.info("¡FLUJO COMPLETO EXITOSO!");
+
         } catch (Exception e) {
-            log.error("Error crítico al contactar Envíos: {}", e.getMessage());
+            log.error("Error en la orquestación. Motivo: {}", e.getMessage());
+            // Si cualquier cosa falla, pagos, lo marcamos como rechazado
+            pedidoGuardado.setState("RECHAZADO");
+            pedidoRepository.save(pedidoGuardado);
+
+            // Lanzamos el error para que tu GlobalExceptionHandler lo atrape y se lo muestre a Postman
+            throw new RuntimeException("No se pudo completar la compra: " + e.getMessage());
         }
 
         return pedidoGuardado;
