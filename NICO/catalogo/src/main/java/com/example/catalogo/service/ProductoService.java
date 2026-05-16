@@ -5,20 +5,17 @@ import com.example.catalogo.repository.ProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductoService {
     @Autowired
     private ProductoRepository repository;
 
-    public Producto crearProducto(Producto producto) {
-        if (producto.getPrecio() <= 0){
-            throw new IllegalArgumentException("El precio debe ser mayor a cero");
-        }
-        return repository.save(producto);
+    public Optional<Producto> getProductoById(Long id) {
+        return repository.findById(id);
     }
-    public List<Producto> obtenerTodos(){
-        return repository.findAll();
+    public Producto addProducto(Producto producto){
+        return repository.save(producto);
     }
 }
