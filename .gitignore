@@ -1,0 +1,18 @@
+# IntelliJ IDEA
+.idea/
+*.iml
+out/
+gen/
+
+# Compilados de Java
+*.class
+*.jar
+*.war
+
+# Maven / Gradle
+target/
+.gradle/
+build/
+
+# Archivos del sistema
+Thumbs.db

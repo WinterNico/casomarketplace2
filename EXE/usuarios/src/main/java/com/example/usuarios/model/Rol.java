@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "roles")
 public class Rol {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,8 +18,9 @@ public class Rol {
     @Column(nullable = false, unique = true, length = 50)
     private String nombre;
 
-    // Constructor solo con nombr, sirve para la creacion de roles
+    // Constructor solo con nombre, sirve para la creacion de roles
     public Rol(String nombre) {
         this.nombre = nombre;
     }
+
 }
