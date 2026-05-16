@@ -10,13 +10,13 @@ public class CatalogoClient {
     private final WebClient webClient;
 
     public CatalogoClient(WebClient.Builder webClientBuilder) {
-        //CAMBIAR ESTO ADEMAS DEL APPLICATION.PROPERTIES EN EL CASO DE QUE UN PUERTO ESTE USADO, FLUCTUO ENTRE 8081/8084
-        this.webClient = webClientBuilder.baseUrl("http://localhost:8084/api/catalogo").build();
+        this.webClient = webClientBuilder.baseUrl("http://localhost:9095/api/v1/catalogo").build();
     }
 
-    public ProductoDTO getProducto(Long id) {
+    public ProductoDTO getProducto(Long id, String token) {
         return webClient.get()
                 .uri("/{id}", id)
+                .header("Authorization", token)
                 .retrieve()
                 .bodyToMono(ProductoDTO.class)
                 .block();
