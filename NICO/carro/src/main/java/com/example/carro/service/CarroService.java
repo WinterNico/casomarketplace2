@@ -25,18 +25,21 @@ public class CarroService {
     @Autowired
     private InventarioClient inventarioClient;
 
-    public Carro addToCart(Long userId, Long productId, Integer quantity) {
+    public Carro addToCart(Long userId, Long productId, Integer quantity, String token) {
         log.info("Iniciando validación de producto {} en Catálogo...", productId);
         ProductoDTO producto;
         try {
-            producto = catalogoClient.getProducto(productId);
+            // Le pasamos el token al cliente del catálogo
+            producto = catalogoClient.getProducto(productId, token);
             log.info("Producto encontrado en catálogo: {}", producto.getNombre());
         } catch (Exception e) {
             log.error("Fallo al contactar al Catálogo para el producto ID: {}", productId);
             throw new RuntimeException("El producto no existe en el catálogo.");
         }
+
         log.info("Verificando stock para {} unidades del producto {}...", quantity, productId);
-        Boolean isStockAvailable = inventarioClient.checkStock(productId, quantity);
+        // Le pasamos el token al cliente de inventario
+        Boolean isStockAvailable = inventarioClient.checkStock(productId, quantity, token);
 
         if (Boolean.FALSE.equals(isStockAvailable)) {
             log.warn("Stock insuficiente para el producto ID: {}. Solicitado: {}", productId, quantity);

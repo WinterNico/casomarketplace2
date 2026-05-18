@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/carro")
+@RequestMapping("/api/v1/carro") // <-- Agregamos el /v1/
 @Slf4j
 public class CarroController {
 
@@ -21,10 +21,15 @@ public class CarroController {
     private CarroService cartService;
 
     @PostMapping("/add")
-    public ResponseEntity<Carro> addToCart(@Valid @RequestBody AddCarroRequestDTO request) {
+    public ResponseEntity<Carro> addToCart(
+            @Valid @RequestBody AddCarroRequestDTO request,
+            @RequestHeader("Authorization") String token) {
+
         log.info("Recibida la petición para agregar al carro. Usuario: {}, Producto: {}, Cantidad: {}",
                 request.getUserId(), request.getProductId(), request.getQuantity());
-        Carro item = cartService.addToCart(request.getUserId(), request.getProductId(), request.getQuantity());
+
+        Carro item = cartService.addToCart(request.getUserId(), request.getProductId(), request.getQuantity(), token);
+
         log.info("Producto {} agregado con éxito al carro del usuario {}", request.getProductId(), request.getUserId());
         return new ResponseEntity<>(item, HttpStatus.CREATED);
     }
