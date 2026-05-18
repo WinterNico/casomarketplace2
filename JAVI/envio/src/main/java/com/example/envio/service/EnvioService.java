@@ -25,6 +25,7 @@ public class EnvioService {
     }
 
     public Envio getShippingByOrder(Long orderId) {
-        return envioRepository.findByOrderId(orderId).orElse(null);
+        return envioRepository.findByOrderId(orderId)
+                .orElseThrow(() -> new RuntimeException("No se encontró información de envío para la orden ID: " + orderId));
     }
 }

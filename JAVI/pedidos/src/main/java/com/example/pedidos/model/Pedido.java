@@ -25,7 +25,7 @@ public class Pedido {
     @Column(name = "fecha-creacion", nullable = false)
     private LocalDateTime creationDate;
 
-    // Podría ser un String o un Enum (ej: PENDIENTE, PAGADO, ENVIADO)
+    // Podría ser un String
     @Column(nullable = false)
     private String state;
 

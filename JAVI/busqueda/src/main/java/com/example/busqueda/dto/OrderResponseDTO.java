@@ -3,7 +3,6 @@ package com.example.busqueda.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -13,6 +12,8 @@ import java.time.LocalDateTime;
 public class OrderResponseDTO {
     private Long id;
     private Long userId;
+    private String userName;
+    private String userEmail;
     private String state;
     private BigDecimal total;
     private LocalDateTime creationDate;

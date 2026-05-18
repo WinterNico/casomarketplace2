@@ -11,7 +11,7 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    // 1. Atrapa los errores de validación de tu DTO (Ej: cuando el total es negativo)
+    // Atrapa los errores de validación del DTO
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errores = new HashMap<>();
@@ -23,10 +23,12 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errores, HttpStatus.BAD_REQUEST);
     }
 
-    // 2. Atrapa errores generales (Ej: cuando buscas un pedido que no existe)
+    // Atrapa errores generales
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleRuntimeException(RuntimeException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
 }

@@ -14,6 +14,10 @@ public class PedidoRequestDTO {
     @Positive(message = "El total debe ser mayor a cero")
     private BigDecimal total;
 
+    @NotNull(message = "La tarjeta es obligatoria")
+    private String tarjeta;
+
+
     //Costructores vacios y con parametros
 
     public PedidoRequestDTO(){}
@@ -31,7 +35,14 @@ public class PedidoRequestDTO {
         return total;
     }
 
-        public void setTotal(BigDecimal total) {
+    public void setTotal(BigDecimal total) {
         this.total = total;
+    }
+
+    public String getTarjeta() {
+        return tarjeta;
+    }
+    public void setTarjeta(String tarjeta) {
+        this.tarjeta = tarjeta;
     }
 }

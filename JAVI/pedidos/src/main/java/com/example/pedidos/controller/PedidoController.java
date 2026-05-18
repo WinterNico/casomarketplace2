@@ -25,40 +25,33 @@
         @Autowired
         private PedidoService pedidoService;
 
-        //1. Crear un Pedido Nuevo
-        // Se consume con un post a http://localhost:8080/api/pedidos
+        // Crear un Pedido Nuevo
         @PostMapping
-        public ResponseEntity<Pedido> createPedido(@Valid @RequestBody PedidoRequestDTO pedidoDTO) {
+        public ResponseEntity<Pedido> createPedido(
+                @Valid @RequestBody PedidoRequestDTO pedidoDTO,
+                @RequestHeader("Authorization") String token) { // aca va el token
 
-            // 3. Escribimos un Log de "INFO" antes de procesar
             log.info("Iniciando la creación de un pedido para el usuario con ID: {}", pedidoDTO.getUserId());
 
             Pedido nuevoPedido = new Pedido();
             nuevoPedido.setUserId(pedidoDTO.getUserId());
             nuevoPedido.setTotal(pedidoDTO.getTotal());
 
-            //Lo guardamos usando tu servicio
-            Pedido pedidoGuardado = pedidoService.createPedido(nuevoPedido);
+            // Le pasamos el token al servicio para que se lo envíe a Envíos
+            Pedido pedidoGuardado = pedidoService.createPedido(nuevoPedido, token, pedidoDTO.getTarjeta());
 
-            // 4. Escribimos otro Log confirmando el éxito
             log.info("Pedido creado exitosamente con un total de: {}", pedidoGuardado.getTotal());
 
             return new ResponseEntity<>(pedidoGuardado, HttpStatus.CREATED);
+        }
 
-
-    }
-
-    //2.Obtener un pedido por ID
-    // Se consume con un GET a http://localhost:8080/api/pedidos/1
     @GetMapping
     public ResponseEntity<List<Pedido>> getAllPedidos() {
         List<Pedido> pedidos = pedidoService.getAllPedidos();
         return new ResponseEntity<>(pedidos, HttpStatus.OK);
     }
 
-
-    //3. Obtener un pedido por ID
-    //Se consume con un get a http://localhost:8080/api/pedidos/1
+    // Obtener un pedido por ID
     @GetMapping("/{id}")
     public ResponseEntity<Pedido> getPedidoById(@PathVariable Long id) {
         Optional<Pedido> pedido = pedidoService.getPedidoById(id);
@@ -67,22 +60,22 @@
         return pedido.map(value->new ResponseEntity<>(value, HttpStatus.OK))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
-    //4 Obtener pedidos por usuario
-    // se consume con un GET a http://localhost:8080/api/pedidos/usuario/5
+
+    // Obtener por ID de usuario
     @GetMapping("/usuario/{userId}")
     public ResponseEntity<List<Pedido>> getPedidosByUserId(@PathVariable Long userId) {
         List<Pedido> pedidos = pedidoService.getPedidosByUserId(userId);
         return new ResponseEntity<>(pedidos, HttpStatus.OK);
     }
-    // 5. Obtener pedidos por estado
-    // Se consume con un GET a http://localhost:8080/api/pedidos/estado/PENDING
+
+    // Obtener pedidos por estado de estos
     @GetMapping("/estado/{state}")
     public ResponseEntity<List<Pedido>> getPedidosByState(@PathVariable String state) {
         List<Pedido> pedidos = pedidoService.getPedidosByState(state);
         return new ResponseEntity<>(pedidos, HttpStatus.OK);
     }
-    // 6. Actualizar el estado de un pedido
-    // Se consume con un PUT a http://localhost:8080/api/pedidos/1/estado?newState=PAGADO
+
+    // Actualiza el estado de un pedido
     @PutMapping("/{id}/estado")
     public ResponseEntity<Pedido> updateState(@PathVariable Long id, @RequestParam String newstate) {
         try{
@@ -92,8 +85,8 @@
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-    //7 Eliminar un pedido
-    // Se consume con un DELETE a http://localhost:8080/api/pedidos/1
+
+    // Elimina un pedido por su ID
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePedido(@PathVariable Long id){
         pedidoService.deletePedido(id);
