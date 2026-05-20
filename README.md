@@ -4,8 +4,8 @@ Este repositorio contiene el código fuente de una plataforma tipo Marketplace d
 
 ## Equipo de Desarrollo 
 * **Exequiel** - Desarrollo del microservicio de: usuarios, autenticacion, notificaciones y pagos (Carpeta `/EXE`)
-* **Javi** - Desarrollo del microservicio de: busqueda, envio y pedidos (Carpeta `/JAVI`)
-* **Nico** - Desarrollo del microservicio de: carro, catalogo e inventario (Carpeta `/NICO`)
+* **Javier** - Desarrollo del microservicio de: busqueda, envio y pedidos (Carpeta `/JAVI`)
+* **Nicolás** - Desarrollo del microservicio de: carro, catalogo e inventario (Carpeta `/NICO`)
 
 ## Tecnologías y Herramientas Utilizadas
 * **Backend:** Java, framework Spring Boot.
