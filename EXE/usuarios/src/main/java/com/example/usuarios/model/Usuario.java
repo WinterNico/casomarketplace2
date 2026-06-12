@@ -3,7 +3,7 @@ package com.example.usuarios.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
+import org.springframework.hateoas.RepresentationModel; // <-- IMPORTANTE
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -15,7 +15,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Table(name = "usuarios")
-public class Usuario {
+public class Usuario extends RepresentationModel<Usuario> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

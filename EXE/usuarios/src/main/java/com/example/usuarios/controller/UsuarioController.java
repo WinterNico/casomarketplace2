@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,17 +23,11 @@ public class UsuarioController {
         this.usuarioService = usuarioService;
     }
 
-    @GetMapping("/buscar/{email}")
-    public ResponseEntity<Usuario> obtenerUsuarioPorEmail(@PathVariable String email) {
-        log.info("Petición REST para buscar usuario por email: {}", email);
-        Usuario usuario = usuarioService.buscarPorEmail(email);
-        return new ResponseEntity<>(usuario, HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}")
+    @GetMapping("/buscar/{id}")
     public ResponseEntity<Usuario> obtenerUsuarioPorId(@PathVariable Long id) {
         log.info("Petición REST para buscar usuario por ID: {}", id);
         Usuario usuario = usuarioService.buscarPorId(id);
+        usuario.add(linkTo(methodOn(UsuarioController.class).obtenerUsuarioPorId(usuario.getId())).withSelfRel());
         return new ResponseEntity<>(usuario, HttpStatus.OK);
     }
 
@@ -39,6 +35,7 @@ public class UsuarioController {
     public ResponseEntity<Usuario> registrarUsuario(@Valid @RequestBody RegistroRequest request) {
         log.info("Petición REST para registrar un nuevo usuario con email: {}", request.getEmail());
         Usuario nuevoUsuario = usuarioService.registrarUsuario(request);
+        nuevoUsuario.add(linkTo(methodOn(UsuarioController.class).obtenerUsuarioPorId(nuevoUsuario.getId())).withSelfRel());
         return new ResponseEntity<>(nuevoUsuario, HttpStatus.CREATED);
     }
 }
