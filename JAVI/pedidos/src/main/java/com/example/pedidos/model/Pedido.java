@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.boot.jaxb.hbm.internal.RepresentationModeConverter;
+import org.springframework.hateoas.RepresentationModel;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,7 +15,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 @Table(name = "pedidos")
-public class Pedido {
+public class Pedido extends RepresentationModel<Pedido> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
