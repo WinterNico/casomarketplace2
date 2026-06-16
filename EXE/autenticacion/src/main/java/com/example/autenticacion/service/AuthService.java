@@ -33,7 +33,7 @@ public class AuthService {
             // Llama a usuarios
             usuarioEncontrado = webClientBuilder.build()
                     .get()
-                    .uri("http://localhost:9091/api/v1/usuarios/buscar/" + request.getEmail())
+                    .uri("http://localhost:9091/api/v1/usuarios/buscar/email/" + request.getEmail())
                     .retrieve()
                     .bodyToMono(UsuarioResponse.class)
                     .block();

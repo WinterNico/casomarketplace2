@@ -3,6 +3,7 @@ package com.example.usuarios.controller;
 import com.example.usuarios.dto.RegistroRequest;
 import com.example.usuarios.model.Usuario;
 import com.example.usuarios.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,9 +11,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@Tag(name = "Usuarios", description = "Operaciones relacionadas con los usuarios del sistema")
 @RequestMapping("/api/v1/usuarios")
 public class UsuarioController {
 
@@ -31,7 +34,18 @@ public class UsuarioController {
         return new ResponseEntity<>(usuario, HttpStatus.OK);
     }
 
+    @GetMapping("/buscar/email/{email}")
+    public ResponseEntity<Usuario> obtenerUsuarioPorEmail(@PathVariable String email) {
+        log.info("Petición REST para buscar usuario por email: {}", email);
+        Usuario usuario = usuarioService.buscarPorEmail(email);
+        // Se le agrega el link HATEOAS apuntando a la búsqueda por ID
+        usuario.add(linkTo(methodOn(UsuarioController.class).obtenerUsuarioPorId(usuario.getId())).withSelfRel());
+        return new ResponseEntity<>(usuario, HttpStatus.OK);
+    }
+
+
     @PostMapping("/registro")
+    @Operation(summary = "Registrar un nuevo usuario", description = "Crea un usuario en la base de datos y encripta su contraseña")
     public ResponseEntity<Usuario> registrarUsuario(@Valid @RequestBody RegistroRequest request) {
         log.info("Petición REST para registrar un nuevo usuario con email: {}", request.getEmail());
         Usuario nuevoUsuario = usuarioService.registrarUsuario(request);

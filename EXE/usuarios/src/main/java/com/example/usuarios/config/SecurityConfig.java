@@ -33,7 +33,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/api/v1/usuarios/registro",
                                 "/api/v1/usuarios/buscar/**", // <--- Esta es la llave
-                                "/error"
+                                "/error",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
                         ).permitAll()
                         // Necesitara token
                         .anyRequest().authenticated()
