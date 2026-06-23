@@ -1,0 +1,10 @@
+com\example\pedidos\config\SecurityConfig.class
+com\example\pedidos\config\WebClientConfig.class
+com\example\pedidos\PedidosApplication.class
+com\example\pedidos\controller\PedidoController.class
+com\example\pedidos\repository\PedidoRepository.class
+com\example\pedidos\dto\PedidoRequestDTO.class
+com\example\pedidos\model\Pedido.class
+com\example\pedidos\service\PedidoService.class
+com\example\pedidos\security\JwtTokenFilter.class
+com\example\pedidos\exception\GlobalExceptionHandler.class
