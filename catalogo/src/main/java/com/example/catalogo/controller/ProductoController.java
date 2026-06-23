@@ -17,7 +17,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/v1/catalogo")
 @Tag(name = "Gestor de Catálogo", description = "Microservicio para administrar productos")
-public classProductoController {
+public class ProductoController {
     private static final Logger log = LoggerFactory.getLogger(ProductoController.class);
 
     @Autowired

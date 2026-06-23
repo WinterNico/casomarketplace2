@@ -56,6 +56,26 @@ services:
     depends_on:
       - ms-eureka
 
+  notificaciones:
+    build: ./notificaciones
+    container_name: notificaciones
+    ports:
+      - "9094:9094"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - ms-eureka
+  
+  pagos:
+    build: ./pagos
+    container_name: pagos
+    ports:
+      - "9093:9093"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - ms-eureka
+
   api-gateway:
     build: ./api-gateway
     container_name: api-gateway
