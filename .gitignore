@@ -6,7 +6,6 @@ gen/
 
 # Compilados de Java
 *.class
-*.jar
 *.war
 
 # Maven / Gradle
