@@ -1,0 +1,9 @@
+com\example\catalogo\controller\ProductoController.class
+com\example\catalogo\model\Producto.class
+com\example\catalogo\repository\ProductoRepository.class
+com\example\catalogo\service\ProductoService.class
+com\example\catalogo\config\OpenApiConfig.class
+com\example\catalogo\CatalogoApplication.class
+com\example\catalogo\security\JwtTokenFilter.class
+com\example\catalogo\config\SecurityConfig.class
+com\example\catalogo\exception\GlobalExceptionHandler.class

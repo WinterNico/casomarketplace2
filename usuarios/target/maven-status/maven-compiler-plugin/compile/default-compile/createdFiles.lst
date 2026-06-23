@@ -1,0 +1,12 @@
+com\example\usuarios\dto\RegistroRequest.class
+com\example\usuarios\repository\UsuarioRepository.class
+com\example\usuarios\UsuariosApplication.class
+com\example\usuarios\service\UsuarioService.class
+com\example\usuarios\repository\RolRepository.class
+com\example\usuarios\model\Usuario.class
+com\example\usuarios\config\SecurityConfig.class
+com\example\usuarios\exception\GlobalExceptionHandler.class
+com\example\usuarios\security\JwtTokenFilter.class
+com\example\usuarios\config\DataInitializer.class
+com\example\usuarios\controller\UsuarioController.class
+com\example\usuarios\model\Rol.class

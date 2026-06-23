@@ -10,7 +10,6 @@ gen/
 *.war
 
 # Maven / Gradle
-target/
 .gradle/
 build/
 
