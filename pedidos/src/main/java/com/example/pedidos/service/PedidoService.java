@@ -42,7 +42,7 @@ public class PedidoService {
 
             // Llamamos a Pagos (usamos .block() para que espere la respuesta)
             webClientBuilder.build().post()
-                    .uri("http://localhost:9093/api/v1/pagos/procesar")
+                    .uri("http://pagos/api/v1/pagos/procesar")
                     .header("Authorization", token)
                     .bodyValue(pagoRequest)
                     .retrieve()
@@ -58,7 +58,7 @@ public class PedidoService {
             envioRequest.put("id", pedidoGuardado.getId());
 
             webClientBuilder.build().post()
-                    .uri("http://localhost:8083/api/v1/envios")
+                    .uri("http://envios/api/v1/envios")
                     .header("Authorization", token)
                     .bodyValue(envioRequest)
                     .retrieve()
@@ -73,7 +73,7 @@ public class PedidoService {
             notiRequest.put("mensaje", "¡Tu compra por $" + pedido.getTotal() + " fue aprobada y se está preparando!");
 
             webClientBuilder.build().post()
-                    .uri("http://localhost:9094/api/v1/notificaciones/enviar")
+                    .uri("http://notificaciones/api/v1/notificaciones/enviar")
                     .header("Authorization", token)
                     .bodyValue(notiRequest)
                     .retrieve()

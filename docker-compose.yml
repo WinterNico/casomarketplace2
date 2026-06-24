@@ -96,6 +96,16 @@ services:
     depends_on:
       - ms-eureka
 
+  envio:
+    build: ./envio
+    container_name: envio
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    depends_on:
+      - ms-eureka
+
   api-gateway:
     build: ./api-gateway
     container_name: api-gateway

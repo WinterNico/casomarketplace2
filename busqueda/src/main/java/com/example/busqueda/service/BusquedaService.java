@@ -40,7 +40,7 @@ public class BusquedaService {
                             envioClient.get().uri("/order/{id}", id)
                                     .header("Authorization", token)
                                     .retrieve().bodyToMono(Map.class),
-                            usuarioClient.get().uri("/{id}", userId)
+                            usuarioClient.get().uri("/buscar/{id}", userId)
                                     .header("Authorization", token)
                                     .retrieve().bodyToMono(Map.class)
                     ).map(tuple -> {
