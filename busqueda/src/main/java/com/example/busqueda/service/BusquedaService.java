@@ -22,9 +22,9 @@ public class BusquedaService {
     public Mono<OrderResponseDTO> getDetalleCompleto(Long id, String token) {
         log.info("Iniciando flujo de búsqueda para el pedido ID: {}", id);
 
-        WebClient pedidoClient = webClientBuilder.baseUrl("http://localhost:8082/api/v1/pedidos").build();
-        WebClient envioClient = webClientBuilder.baseUrl("http://localhost:8083/api/v1/envios").build();
-        WebClient usuarioClient = webClientBuilder.baseUrl("http://localhost:9091/api/v1/usuarios").build();
+        WebClient pedidoClient = webClientBuilder.baseUrl("http://pedidos/api/v1/pedidos").build();
+        WebClient envioClient = webClientBuilder.baseUrl("http://envios/api/v1/envios").build();
+        WebClient usuarioClient = webClientBuilder.baseUrl("http://usuarios/api/v1/usuarios").build();
 
         // Buscamos el pedido y pasamos token
         return pedidoClient.get().uri("/{id}", id)
