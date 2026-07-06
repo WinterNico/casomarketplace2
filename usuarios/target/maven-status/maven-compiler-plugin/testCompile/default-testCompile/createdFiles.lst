@@ -1,2 +1,5 @@
+com\example\usuarios\model\RolTest.class
 com\example\usuarios\UsuarioServiceTest.class
+com\example\usuarios\model\UsuarioTest.class
 com\example\usuarios\UsuariosApplicationTests.class
+com\example\usuarios\controller\UsuarioControllerTest.class

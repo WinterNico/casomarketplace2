@@ -29,16 +29,13 @@ class UsuarioServiceTest {
     @Mock
     private RolRepository rolRepository;
 
-    // Se inyecta al service
     @InjectMocks
     private UsuarioService usuarioService;
 
-    // Variables de prueba que usaremos en varios tests
     private RegistroRequest requestPrueba;
     private Rol rolPrueba;
     private Usuario usuarioPrueba;
 
-    // se ejecuta ANTES de cada @Test para preparar los datos
     @BeforeEach
     void setUp() {
         requestPrueba = new RegistroRequest();
@@ -58,58 +55,72 @@ class UsuarioServiceTest {
         usuarioPrueba.setName("Ren Amamiya");
     }
 
-    // Registro exitoso
     @Test
     void registrarUsuario_Exitoso() {
-        // "Cuando te pregunten si existe el correo, di que NO (false)"
         when(usuarioRepository.existsByEmail(anyString())).thenReturn(false);
-
-        // "Cuando busquen el rol ROLE_CLIENTE, entrégales el rol de prueba"
         when(rolRepository.findByNombre(anyString())).thenReturn(Optional.of(rolPrueba));
-
-        // "Cuando intenten guardar el usuario, devuelve el usuario de prueba"
         when(usuarioRepository.save(any(Usuario.class))).thenReturn(usuarioPrueba);
 
-        // Ejecutamos el método real
         Usuario resultado = usuarioService.registrarUsuario(requestPrueba);
 
-        // (Las Comprobaciones)
-        assertNotNull(resultado); // Comprobamos que no devolvió un nulo
-        assertEquals("Ren Amamiya", resultado.getName()); // Comprobamos que el nombre coincide
-
-        // Verificamos que el repositorio fingido fue llamado exactamente 1 vez para guardar
+        assertNotNull(resultado);
+        assertEquals("Ren Amamiya", resultado.getName());
         verify(usuarioRepository, times(1)).save(any(Usuario.class));
     }
 
-    // Correo ya existe
     @Test
     void registrarUsuario_LanzaErrorCuandoCorreoExiste() {
-        // "Cuando pregunten si el correo existe, di que SÍ (true)"
         when(usuarioRepository.existsByEmail("joker@phantom.cl")).thenReturn(true);
 
-        // Comprobamos que al intentar registrar, el servicio se defiende lanzando la excepción exacta
         RuntimeException excepcion = assertThrows(RuntimeException.class, () -> {
             usuarioService.registrarUsuario(requestPrueba);
         });
 
-        // Verificamos que el mensaje de la excepción es el que tú escribiste en el código
         assertEquals("El correo ya se encuentra registrado en el sistema.", excepcion.getMessage());
-
-        // Comprobamos que NUNCA se intentó guardar nada en la base de datos
         verify(usuarioRepository, never()).save(any(Usuario.class));
     }
 
-    // Busqueda por ID
+    @Test
+    void registrarUsuario_LanzaErrorCuandoRolNoExiste() {
+        when(usuarioRepository.existsByEmail(anyString())).thenReturn(false);
+        when(rolRepository.findByNombre(anyString())).thenReturn(Optional.empty());
+
+        RuntimeException excepcion = assertThrows(RuntimeException.class, () -> {
+            usuarioService.registrarUsuario(requestPrueba);
+        });
+
+        assertEquals("Rol no encontrado: ROLE_CLIENTE", excepcion.getMessage());
+    }
+
+    @Test
+    void buscarPorEmail_Exitoso() {
+        when(usuarioRepository.findByEmail("joker@phantom.cl")).thenReturn(Optional.of(usuarioPrueba));
+        Usuario resultado = usuarioService.buscarPorEmail("joker@phantom.cl");
+        assertNotNull(resultado);
+    }
+
+    @Test
+    void buscarPorEmail_LanzaErrorCuandoNoExiste() {
+        when(usuarioRepository.findByEmail("joker@phantom.cl")).thenReturn(Optional.empty());
+        RuntimeException excepcion = assertThrows(RuntimeException.class, () -> {
+            usuarioService.buscarPorEmail("joker@phantom.cl");
+        });
+        assertTrue(excepcion.getMessage().contains("Usuario no encontrado con el correo"));
+    }
+
+    @Test
+    void buscarPorId_Exitoso() {
+        when(usuarioRepository.findById(1L)).thenReturn(Optional.of(usuarioPrueba));
+        Usuario resultado = usuarioService.buscarPorId(1L);
+        assertNotNull(resultado);
+    }
+
     @Test
     void buscarPorId_LanzaErrorCuandoNoExiste() {
-        // "Cuando busquen el ID 99, devuelve un Optional vacío (no existe)"
         when(usuarioRepository.findById(99L)).thenReturn(Optional.empty());
-
-        // WHEN & THEN
         RuntimeException excepcion = assertThrows(RuntimeException.class, () -> {
             usuarioService.buscarPorId(99L);
         });
-
         assertEquals("Usuario no encontrado con el ID: 99", excepcion.getMessage());
     }
 }

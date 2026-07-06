@@ -8,6 +8,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 
 @RestController
 @RequestMapping("/api/v1/pagos")
@@ -25,6 +27,10 @@ public class PagoController {
             summary = "Procesar un Pago",
             description = "Simula el cobro a una tarjeta. Si la tarjeta termina en 4444 el pago será rechazado, de lo contrario será aprobado."
     )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Pago procesado y aprobado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Pago rechazado (tarjeta terminada en 4444 o datos inválidos, otros.)")
+    })
     public ResponseEntity<PagoResponse> pagar(@Valid @RequestBody PagoRequest request) {
         PagoResponse respuesta = pagoService.procesarPago(request);
 

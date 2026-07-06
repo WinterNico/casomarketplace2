@@ -1,2 +1,3 @@
 com\example\pagos\PagosApplicationTests.class
+com\example\pagos\PagoControllerTest.class
 com\example\pagos\PagoServiceTest.class

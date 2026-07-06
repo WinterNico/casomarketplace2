@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UsuarioController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">usuarios</a> &gt; <a href="index.source.html" class="el_package">com.example.usuarios.controller</a> &gt; <span class="el_source">UsuarioController.java</span></div><h1>UsuarioController.java</h1><pre class="source lang-java linenums">package com.example.usuarios.controller;
+
+import com.example.usuarios.dto.RegistroRequest;
+import com.example.usuarios.model.Usuario;
+import com.example.usuarios.service.UsuarioService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@Tag(name = &quot;Usuarios&quot;, description = &quot;Operaciones relacionadas con los usuarios del sistema&quot;)
+@RequestMapping(&quot;/api/v1/usuarios&quot;)
+public class UsuarioController {
+
+<span class="fc" id="L24">    private static final Logger log = LoggerFactory.getLogger(UsuarioController.class);</span>
+    private final UsuarioService usuarioService;
+
+<span class="fc" id="L27">    public UsuarioController(UsuarioService usuarioService) {</span>
+<span class="fc" id="L28">        this.usuarioService = usuarioService;</span>
+<span class="fc" id="L29">    }</span>
+
+    @GetMapping(&quot;/buscar/{id}&quot;)
+    @Operation(summary = &quot;Obtener usuario por ID&quot;, description = &quot;Busca y retorna los detalles de un usuario específico mediante su identificador único&quot;)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = &quot;200&quot;, description = &quot;Usuario encontrado exitosamente&quot;),
+            @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Usuario no encontrado en el sistema&quot;)
+    })
+    public ResponseEntity&lt;Usuario&gt; obtenerUsuarioPorId(@PathVariable Long id) {
+<span class="fc" id="L38">        log.info(&quot;Petición REST para buscar usuario por ID: {}&quot;, id);</span>
+<span class="fc" id="L39">        Usuario usuario = usuarioService.buscarPorId(id);</span>
+<span class="fc" id="L40">        usuario.add(linkTo(methodOn(UsuarioController.class).obtenerUsuarioPorId(usuario.getId())).withSelfRel());</span>
+<span class="fc" id="L41">        return new ResponseEntity&lt;&gt;(usuario, HttpStatus.OK);</span>
+    }
+
+    @GetMapping(&quot;/buscar/email/{email}&quot;)
+    @Operation(summary = &quot;Obtener usuario por Email&quot;, description = &quot;Busca y retorna los detalles de un usuario utilizando su dirección de correo electrónico&quot;)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = &quot;200&quot;, description = &quot;Usuario encontrado exitosamente&quot;),
+            @ApiResponse(responseCode = &quot;404&quot;, description = &quot;Usuario no encontrado con el correo proporcionado&quot;)
+    })
+    public ResponseEntity&lt;Usuario&gt; obtenerUsuarioPorEmail(@PathVariable String email) {
+<span class="fc" id="L51">        log.info(&quot;Petición REST para buscar usuario por email: {}&quot;, email);</span>
+<span class="fc" id="L52">        Usuario usuario = usuarioService.buscarPorEmail(email);</span>
+        // Se le agrega el link HATEOAS apuntando a la búsqueda por ID
+<span class="fc" id="L54">        usuario.add(linkTo(methodOn(UsuarioController.class).obtenerUsuarioPorId(usuario.getId())).withSelfRel());</span>
+<span class="fc" id="L55">        return new ResponseEntity&lt;&gt;(usuario, HttpStatus.OK);</span>
+    }
+
+
+    @PostMapping(&quot;/registro&quot;)
+    @Operation(summary = &quot;Registrar un nuevo usuario&quot;, description = &quot;Crea un usuario en la base de datos y encripta su contraseña&quot;)
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = &quot;201&quot;, description = &quot;Usuario creado exitosamente&quot;),
+            @ApiResponse(responseCode = &quot;400&quot;, description = &quot;Error en la validación de los datos (ej. correo duplicado)&quot;)
+    })
+    public ResponseEntity&lt;Usuario&gt; registrarUsuario(@Valid @RequestBody RegistroRequest request) {
+<span class="fc" id="L66">        log.info(&quot;Petición REST para registrar un nuevo usuario con email: {}&quot;, request.getEmail());</span>
+<span class="fc" id="L67">        Usuario nuevoUsuario = usuarioService.registrarUsuario(request);</span>
+<span class="fc" id="L68">        nuevoUsuario.add(linkTo(methodOn(UsuarioController.class).obtenerUsuarioPorId(nuevoUsuario.getId())).withSelfRel());</span>
+<span class="fc" id="L69">        return new ResponseEntity&lt;&gt;(nuevoUsuario, HttpStatus.CREATED);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

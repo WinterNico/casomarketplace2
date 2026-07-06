@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
+import java.time.Duration;
 
 @Service
 public class AuthService {
@@ -30,13 +31,12 @@ public class AuthService {
         UsuarioResponse usuarioEncontrado;
 
         try {
-            // Llama a usuarios
             usuarioEncontrado = webClientBuilder.build()
                     .get()
-                    // CAMBIA ESTA LÍNEA:
                     .uri("http://usuarios/api/v1/usuarios/buscar/email/" + request.getEmail())
                     .retrieve()
                     .bodyToMono(UsuarioResponse.class)
+                    .timeout(Duration.ofSeconds(3))
                     .block();
 
             log.info("Usuario remoto encontrado. Validando credenciales...");
@@ -49,13 +49,11 @@ public class AuthService {
             throw new RuntimeException("El servicio de autenticación no está disponible en este momento");
         }
 
-        // Validacion de contraseñas
         if (!passwordEncoder.matches(request.getPassword(), usuarioEncontrado.getPassword())) {
             log.warn("Contraseña incorrecta ingresada para el correo: {}", request.getEmail());
             throw new RuntimeException("Credenciales incorrectas (Contraseña mala)");
         }
 
-        // Se fabrica como tal el token
         try {
             String nombreRol = usuarioEncontrado.getRoles().get(0).getNombre();
             log.info("Validacion exitosa. Generando token para rol: {}", nombreRol);

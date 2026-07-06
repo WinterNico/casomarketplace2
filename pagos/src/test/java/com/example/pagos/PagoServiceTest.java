@@ -31,13 +31,11 @@ class PagoServiceTest {
 
     @BeforeEach
     void setUp() {
-        // Compra normal de un bajo eléctrico
         pagoAprobadoRequest = new PagoRequest();
         pagoAprobadoRequest.setIdPedido(1L);
         pagoAprobadoRequest.setMonto(150000.0);
         pagoAprobadoRequest.setNumeroTarjeta("1234567812345678"); // Tarjeta buena
 
-        // Compra que debe fallar
         pagoRechazadoRequest = new PagoRequest();
         pagoRechazadoRequest.setIdPedido(2L);
         pagoRechazadoRequest.setMonto(50000.0);
@@ -46,7 +44,6 @@ class PagoServiceTest {
 
     @Test
     void procesarPago_Aprobado() {
-        // "Cuando el servicio guarde el pago, no hagas nada especial, solo devuelve el objeto"
         when(pagoRepository.save(any(Pago.class))).thenReturn(new Pago());
 
         PagoResponse respuesta = pagoService.procesarPago(pagoAprobadoRequest);
@@ -54,9 +51,8 @@ class PagoServiceTest {
         assertNotNull(respuesta);
         assertEquals("APROBADO", respuesta.getEstado());
         assertEquals("Pago procesado correctamente", respuesta.getMensaje());
-        assertNotNull(respuesta.getTransaccionId()); // Verificamos que se generó un código TXN-
+        assertNotNull(respuesta.getTransaccionId());
 
-        // Verificamos que se guardó en BD
         verify(pagoRepository, times(1)).save(any(Pago.class));
     }
 
@@ -69,6 +65,23 @@ class PagoServiceTest {
         assertNotNull(respuesta);
         assertEquals("RECHAZADO", respuesta.getEstado());
         assertEquals("Fondos insuficientes o tarjeta bloqueada", respuesta.getMensaje());
+
+        verify(pagoRepository, times(1)).save(any(Pago.class));
+    }
+
+    @Test
+    void procesarPago_AprobadoCuandoTarjetaEsNula() {
+        PagoRequest pagoSinTarjeta = new PagoRequest();
+        pagoSinTarjeta.setIdPedido(3L);
+        pagoSinTarjeta.setMonto(5000.0);
+        pagoSinTarjeta.setNumeroTarjeta(null);
+
+        when(pagoRepository.save(any(Pago.class))).thenReturn(new Pago());
+
+        PagoResponse respuesta = pagoService.procesarPago(pagoSinTarjeta);
+
+        assertNotNull(respuesta);
+        assertEquals("APROBADO", respuesta.getEstado());
 
         verify(pagoRepository, times(1)).save(any(Pago.class));
     }

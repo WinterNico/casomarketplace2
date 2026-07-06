@@ -2,7 +2,6 @@ package com.example.usuarios.service;
 
 import java.util.Collections;
 
-import com.example.usuarios.controller.UsuarioController;
 import com.example.usuarios.dto.RegistroRequest;
 import com.example.usuarios.model.Rol;
 import com.example.usuarios.model.Usuario;
@@ -10,16 +9,9 @@ import com.example.usuarios.repository.RolRepository;
 import com.example.usuarios.repository.UsuarioRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Service
 public class UsuarioService {

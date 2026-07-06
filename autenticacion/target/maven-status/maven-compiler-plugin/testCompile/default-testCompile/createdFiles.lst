@@ -1,2 +1,3 @@
 com\example\autenticacion\AutenticacionApplicationTests.class
+com\example\autenticacion\AuthControllerTest.class
 com\example\autenticacion\AuthServiceTest.class

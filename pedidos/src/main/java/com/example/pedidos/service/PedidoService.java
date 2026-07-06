@@ -7,6 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -31,16 +33,29 @@ public class PedidoService {
         pedido.setState("PROCESANDO"); // Estado inicial
 
         Pedido pedidoGuardado = pedidoRepository.save(pedido);
+        boolean pagoRealizado = false; // Bandera para la compensación
 
         try {
+            // 1. OBTENER EMAIL DEL USUARIO (Solución al hardcodeo)
+            log.info("0. Obteniendo datos del usuario desde MS-Usuarios...");
+            Map usuarioResponse = webClientBuilder.build().get()
+                    .uri("http://usuarios/api/v1/usuarios/buscar/" + pedido.getUserId())
+                    .header("Authorization", token)
+                    .retrieve()
+                    .bodyToMono(Map.class)
+                    .block();
+
+            String emailUsuario = usuarioResponse != null && usuarioResponse.containsKey("email")
+                    ? (String) usuarioResponse.get("email")
+                    : "correo_por_defecto@dominio.com";
+
+            // 2. VALIDAR PAGO
             log.info("1. Validando pago con MS-Pagos...");
-            // Armamos el JSON que espera Pagos
             Map<String, Object> pagoRequest = new HashMap<>();
             pagoRequest.put("idPedido", pedidoGuardado.getId());
             pagoRequest.put("numeroTarjeta", tarjeta);
             pagoRequest.put("monto", pedido.getTotal());
 
-            // Llamamos a Pagos (usamos .block() para que espere la respuesta)
             webClientBuilder.build().post()
                     .uri("http://pagos/api/v1/pagos/procesar")
                     .header("Authorization", token)
@@ -49,10 +64,12 @@ public class PedidoService {
                     .bodyToMono(String.class)
                     .block();
 
-            // Si llegamos a esta línea, es porque Pagos NO tiró error (tarjeta válida)
+            // Si pasa esta línea, el pago fue exitoso
+            pagoRealizado = true;
             pedidoGuardado.setState("PAGADO");
             pedidoRepository.save(pedidoGuardado);
 
+            // 3. REGISTRAR ENVÍO
             log.info("2. Pago exitoso. Avisando a MS-Envios...");
             Map<String, Long> envioRequest = new HashMap<>();
             envioRequest.put("id", pedidoGuardado.getId());
@@ -65,10 +82,10 @@ public class PedidoService {
                     .bodyToMono(String.class)
                     .block();
 
-            Map<String, Object> notiRequest = new HashMap<>();
-
+            // 4. NOTIFICACIONES
             log.info("3. Envío creado. Disparando MS-Notificaciones...");
-            notiRequest.put("emailDestino", "cliente_" + pedidoGuardado.getUserId() + "@duoc.cl");
+            Map<String, Object> notiRequest = new HashMap<>();
+            notiRequest.put("emailDestino", emailUsuario); // Usamos el correo real del MS-Usuarios
             notiRequest.put("asunto", "Confirmación de Pedido #" + pedidoGuardado.getId());
             notiRequest.put("mensaje", "¡Tu compra por $" + pedido.getTotal() + " fue aprobada y se está preparando!");
 
@@ -82,23 +99,55 @@ public class PedidoService {
 
             log.info("¡FLUJO COMPLETO EXITOSO!");
 
-        } catch (Exception e) {
-            log.error("Error en la orquestación. Motivo: {}", e.getMessage());
-            // Si cualquier cosa falla, pagos, lo marcamos como rechazado
-            pedidoGuardado.setState("RECHAZADO");
-            pedidoRepository.save(pedidoGuardado);
+            // EXCEPCIONES ESPECÍFICAS Y COMPENSACIÓN (SAGA)
+        } catch (WebClientResponseException e) {
+            log.error("Error de respuesta del servicio remoto: {} - {}", e.getStatusCode(), e.getResponseBodyAsString());
+            manejarCompensacion(pedidoGuardado, pagoRealizado, token);
+            throw new RuntimeException("Fallo en la orquestación (Servicio remoto): " + e.getMessage());
 
-            // Lanzamos el error para que tu GlobalExceptionHandler lo atrape y se lo muestre a Postman
+        } catch (WebClientRequestException e) {
+            log.error("Error de red/comunicación al contactar servicio remoto: {}", e.getMessage());
+            manejarCompensacion(pedidoGuardado, pagoRealizado, token);
+            throw new RuntimeException("Fallo en la orquestación (Error de red): " + e.getMessage());
+
+        } catch (Exception e) {
+            log.error("Error interno en la orquestación. Motivo: {}", e.getMessage());
+            manejarCompensacion(pedidoGuardado, pagoRealizado, token);
             throw new RuntimeException("No se pudo completar la compra: " + e.getMessage());
         }
 
         return pedidoGuardado;
     }
 
+    // MÉTODO DE COMPENSACIÓN (SAGA PATTERN)
+    private void manejarCompensacion(Pedido pedido, boolean pagoRealizado, String token) {
+
+        if (pagoRealizado) {
+            log.warn("Iniciando compensación: Falló un proceso posterior. Reversando pago del pedido {}", pedido.getId());
+
+            try {
+                pedido.setState("REEMBOLSADO");
+                pedidoRepository.save(pedido);   // <-- Ahora el save está dentro del try
+                log.info("Compensación aplicada. El pedido quedó en estado REEMBOLSADO.");
+
+            } catch (Exception ex) {
+                log.error("Error CRÍTICO en compensación. Requiere revisión manual.");
+
+                // Si falla guardar el reembolso, al menos dejamos el estado en memoria
+                pedido.setState("ERROR_COMPENSACION");
+            }
+
+        } else {
+            pedido.setState("RECHAZADO");
+            pedidoRepository.save(pedido);
+        }
+    }
+
     // Obtener todos los pedidos
     public List<Pedido> getAllPedidos(){
         return pedidoRepository.findAll();
     }
+
     // Obtener un pedido específico por su ID
     public Optional<Pedido> getPedidoById(Long id){
         return pedidoRepository.findById(id);

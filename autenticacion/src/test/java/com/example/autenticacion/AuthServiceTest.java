@@ -13,7 +13,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import java.net.URI;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,7 +27,6 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class AuthServiceTest {
 
-    // Actores
     @Mock
     private WebClient.Builder webClientBuilder;
     @Mock
@@ -40,22 +43,18 @@ class AuthServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    // la inyecion
     @InjectMocks
     private AuthService authService;
 
-    // Variables de prueba
     private LoginRequest requestPrueba;
     private UsuarioResponse usuarioRemotoFalso;
 
     @BeforeEach
     void setUp() {
-        // Datos
         requestPrueba = new LoginRequest();
         requestPrueba.setEmail("holaprueba@phantom.cl");
         requestPrueba.setPassword("PasswordSecreta123!");
 
-        // El usuario falso que fingiremos que nos devuelve ms-usuarios
         UsuarioResponse.RolResponse rolFalso = new UsuarioResponse.RolResponse();
         rolFalso.setId(1L);
         rolFalso.setNombre("ROLE_CLIENTE");
@@ -73,46 +72,80 @@ class AuthServiceTest {
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
     }
 
-    // Login exitoso
     @Test
     void procesarLogin_Exitoso() {
-        // "Cuando el WebClient termine, devuelve el Mono con nuestro usuario falso"
         when(responseSpec.bodyToMono(UsuarioResponse.class)).thenReturn(Mono.just(usuarioRemotoFalso));
 
-        // "Cuando comparen las contraseñas, di que SÍ coinciden (true)"
         when(passwordEncoder.matches("PasswordSecreta123!", "hash_de_la_contraseña")).thenReturn(true);
 
-        // "Cuando pidan generar el token, devuelve este token inventado"
         when(jwtProvider.generarToken(anyString(), anyLong(), anyString())).thenReturn("eyJhbGciOiJIUzI1Ni...");
 
-        // Ejecutamos
         String tokenGenerado = authService.procesarLogin(requestPrueba);
 
-        // Comprobamos
         assertNotNull(tokenGenerado);
         assertEquals("eyJhbGciOiJIUzI1Ni...", tokenGenerado);
 
-        // Verificamos que se compararon las contraseñas 1 vez
         verify(passwordEncoder, times(1)).matches(anyString(), anyString());
     }
 
-    // Contraseña incorrecta
     @Test
     void procesarLogin_LanzaErrorPorContrasenaMala() {
-        // El guion
         when(responseSpec.bodyToMono(UsuarioResponse.class)).thenReturn(Mono.just(usuarioRemotoFalso));
 
-        // "Cuando comparen las contraseñas, di que NO coinciden (false)"
         when(passwordEncoder.matches("PasswordSecreta123!", "hash_de_la_contraseña")).thenReturn(false);
 
-        // Esperamos la explosión controlada
         RuntimeException excepcion = assertThrows(RuntimeException.class, () -> {
             authService.procesarLogin(requestPrueba);
         });
 
         assertEquals("Credenciales incorrectas (Contraseña mala)", excepcion.getMessage());
 
-        // Comprobamos que, como falló la contraseña, NUNCA se intentó generar un token
         verify(jwtProvider, never()).generarToken(anyString(), anyLong(), anyString());
+    }
+
+    @Test
+    void procesarLogin_LanzaErrorPorWebClientResponse() {
+        WebClientResponseException errorHttp = WebClientResponseException.create(404, "Not Found", null, null, null);
+        when(responseSpec.bodyToMono(UsuarioResponse.class)).thenThrow(errorHttp);
+
+        RuntimeException excepcion = assertThrows(RuntimeException.class, () -> {
+            authService.procesarLogin(requestPrueba);
+        });
+
+        assertEquals("Credenciales incorrectas (Usuario no existe)", excepcion.getMessage());
+    }
+
+    @Test
+    void procesarLogin_LanzaErrorPorWebClientRequest() {
+        WebClientRequestException errorRed = new WebClientRequestException(
+                new RuntimeException("Timeout"),
+                HttpMethod.GET,
+                URI.create("http://localhost"),
+                HttpHeaders.EMPTY
+        );
+
+        when(responseSpec.bodyToMono(UsuarioResponse.class)).thenThrow(errorRed);
+
+        RuntimeException excepcion = assertThrows(RuntimeException.class, () -> {
+            authService.procesarLogin(requestPrueba);
+        });
+
+        assertEquals("El servicio de autenticación no está disponible en este momento", excepcion.getMessage());
+    }
+
+
+
+    @Test
+    void procesarLogin_LanzaErrorPorUsuarioSinRoles() {
+        usuarioRemotoFalso.setRoles(List.of());
+
+        when(responseSpec.bodyToMono(UsuarioResponse.class)).thenReturn(Mono.just(usuarioRemotoFalso));
+        when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
+
+        RuntimeException excepcion = assertThrows(RuntimeException.class, () -> {
+            authService.procesarLogin(requestPrueba);
+        });
+
+        assertEquals("Error interno: El usuario no tiene roles asignados", excepcion.getMessage());
     }
 }

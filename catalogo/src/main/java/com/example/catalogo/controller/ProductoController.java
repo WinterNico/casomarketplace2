@@ -27,17 +27,14 @@ public class ProductoController {
     @Operation(summary = "Obtener producto", description = "Busca un producto especifico por su ID")
     public ResponseEntity<Producto> getProducto(@PathVariable Long id){
         log.info("Petición recibida para buscar producto ID: {}", id);
-        Optional<Producto> producto = service.getProductoById(id);
 
-        if (producto.isPresent()){
-            Producto prod = producto.get();
-            prod.add(linkTo(methodOn(ProductoController.class).getProducto(id)).withSelfRel());
-            log.info("Producto ID {} encontrado con éxito.", id);
-            return new ResponseEntity<>(producto.get(), HttpStatus.OK);
-        } else {
-            log.warn("El producto ID {} no existe en la base de datos.", id);
-            throw new RuntimeException("Producto no encontrado");
-        }
+        // El controlador ya no valida el Optional. Delega la responsabilidad al servicio.
+        Producto producto = service.getProductoById(id);
+
+        producto.add(linkTo(methodOn(ProductoController.class).getProducto(id)).withSelfRel());
+        log.info("Producto ID {} encontrado con éxito.", id);
+
+        return new ResponseEntity<>(producto, HttpStatus.OK);
     }
 
     @PostMapping("/add")

@@ -1,0 +1,45 @@
+server:
+  port: 9090
+
+spring:
+  application:
+    name: api-gateway
+  profiles:
+    active: dev
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      # Rutas explícitas requeridas por la rúbrica
+      routes:
+        - id: catalogo-service
+          uri: lb://catalogo
+          predicates:
+            - Path=/api/v1/catalogo/**
+            
+        - id: pedidos-service
+          uri: lb://pedidos
+          predicates:
+            - Path=/api/v1/pedidos/**
+            
+        - id: usuarios-service
+          uri: lb://usuarios
+          predicates:
+            - Path=/api/v1/usuarios/**
+            
+        - id: pagos-service
+          uri: lb://pagos
+          predicates:
+            - Path=/api/v1/pagos/**
+            
+        - id: carro-service
+          uri: lb://carro
+          predicates:
+            - Path=/api/v1/carro/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka

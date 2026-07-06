@@ -1,3 +1,3 @@
-com\example\inventario\InventarioApplicationTests.class
 com\example\inventario\controller\InventarioControllerTest.class
+com\example\inventario\model\InventarioTest.class
 com\example\inventario\service\InventarioServiceTest.class
