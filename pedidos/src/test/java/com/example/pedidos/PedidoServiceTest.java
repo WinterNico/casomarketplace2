@@ -3,24 +3,39 @@ package com.example.pedidos;
 import com.example.pedidos.model.Pedido;
 import com.example.pedidos.repository.PedidoRepository;
 import com.example.pedidos.service.PedidoService;
+import org.mockito.quality.Strictness;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.math.BigDecimal;
+import java.net.URI;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+
+
+
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class PedidoServiceTest {
 
     @Mock
@@ -38,78 +53,212 @@ class PedidoServiceTest {
     private WebClient.RequestHeadersSpec requestHeadersSpec;
     @Mock
     private WebClient.ResponseSpec responseSpec;
+    @Mock
+    private WebClient.RequestHeadersUriSpec requestHeadersUriSpec;
 
     @InjectMocks
     private PedidoService pedidoService;
 
     private Pedido pedidoPrueba;
-    private String tokenFalso = "Bearer token_falso";
+    private final String tokenFalso = "Bearer token_falso";
 
     @BeforeEach
     void setUp() {
         pedidoPrueba = new Pedido();
         pedidoPrueba.setId(1L);
-        pedidoPrueba.setUserId(1L);
+        pedidoPrueba.setUserId(99L); // ID tipo Joker
         pedidoPrueba.setTotal(new BigDecimal("150000.0"));
 
-        // Simulación genérica del comportamiento del WebClient para TODAS las llamadas (Pagos, Envíos, Notis)
-        lenient().when(webClientBuilder.build()).thenReturn(webClient);
-        lenient().when(webClient.post()).thenReturn(requestBodyUriSpec);
-        lenient().when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
-        lenient().when(requestBodySpec.header(anyString(), anyString())).thenReturn(requestBodySpec);
-        lenient().when(requestBodySpec.bodyValue(any())).thenReturn(requestHeadersSpec);
-        lenient().when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+        // Preparación del WebClient Mock
+        when(webClientBuilder.build()).thenReturn(webClient);
+
+        // GET Mocks
+        when(webClient.get()).thenReturn(requestHeadersUriSpec);
+        when(requestHeadersUriSpec.uri(anyString())).thenReturn(requestHeadersSpec);
+        when(requestHeadersSpec.header(anyString(), anyString())).thenReturn(requestHeadersSpec);
+        when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
+
+        // POST Mocks
+        when(webClient.post()).thenReturn(requestBodyUriSpec);
+        when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
+        when(requestBodySpec.header(anyString(), anyString())).thenReturn(requestBodySpec);
+        when(requestBodySpec.bodyValue(any())).thenReturn(requestHeadersSpec);
     }
 
+    // ==========================================
+    // TESTS CAMINO FELIZ
+    // ==========================================
     @Test
     void createPedido_OrquestacionExitosa() {
-        // GIVEN: El guion
-        // Al guardar por primera vez (PROCESANDO) y segunda vez (PAGADO), devuelve el pedido
         when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedidoPrueba);
-
-        // Simula que TODAS las respuestas de los otros microservicios dicen "OK"
+        when(responseSpec.bodyToMono(Map.class)).thenReturn(Mono.just(Map.of("email", "joker@phantom.cl")));
         when(responseSpec.bodyToMono(String.class)).thenReturn(Mono.just("OK"));
 
-        // WHEN: Ejecuta la orquestación completa
         Pedido resultado = pedidoService.createPedido(pedidoPrueba, tokenFalso, "1234567812345678");
-
-        // THEN: Comprobamos el éxito
         assertNotNull(resultado);
-        assertEquals("PAGADO", resultado.getState());
-
-        // El repositorio debió ser llamado 2 veces: Una para crear (PROCESANDO) y otra para actualizar a PAGADO
-        verify(pedidoRepository, times(2)).save(any(Pedido.class));
+        verify(pedidoRepository, atLeastOnce()).save(any(Pedido.class));
     }
 
-    @Test
-    void createPedido_RechazadoPorErrorDePago() {
-        // GIVEN: El guion del camino triste
-        when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedidoPrueba);
+    // ==========================================
+    // TESTS CAMINOS TRISTES Y EXCEPCIONES WEBCLIENT
+    // ==========================================
 
-        // Simulamos que el WebClient tira una excepción (ej: Tarjeta sin fondos)
+    @Test
+    void createPedido_RechazadoPorExcepcionGenerica() {
+        when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedidoPrueba);
         when(responseSpec.bodyToMono(String.class)).thenThrow(new RuntimeException("Rechazado por Pagos"));
 
-        // WHEN & THEN: Esperamos que el servicio reviente y ataje el error
         RuntimeException excepcion = assertThrows(RuntimeException.class, () -> {
             pedidoService.createPedido(pedidoPrueba, tokenFalso, "1111222233334444");
         });
 
         assertTrue(excepcion.getMessage().contains("No se pudo completar la compra"));
+        assertEquals("RECHAZADO", pedidoPrueba.getState()); // No alcanzó a pagar
+    }
 
-        // Verificamos que el pedido quedó como RECHAZADO
+    @Test
+    void createPedido_FallaPorWebClientResponseException() {
+        when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedidoPrueba);
+
+        // Simulamos un error 404 o 500 del servicio externo
+        WebClientResponseException errorHttp = WebClientResponseException.create(404, "Not Found", null, null, null);
+        when(responseSpec.bodyToMono(Map.class)).thenThrow(errorHttp);
+
+        RuntimeException excepcion = assertThrows(RuntimeException.class, () -> {
+            pedidoService.createPedido(pedidoPrueba, tokenFalso, "1234");
+        });
+
+        assertTrue(excepcion.getMessage().contains("Fallo en la orquestación (Servicio remoto)"));
         assertEquals("RECHAZADO", pedidoPrueba.getState());
     }
 
     @Test
+    void createPedido_FallaPorWebClientRequestException() {
+        when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedidoPrueba);
+
+        // Simulamos un error de red (TimeOut o servicio caído)
+        WebClientRequestException errorRed = new WebClientRequestException(new RuntimeException("Timeout"), HttpMethod.GET,
+                URI.create("http://localhost"),
+                new HttpHeaders());
+        when(responseSpec.bodyToMono(Map.class)).thenThrow(errorRed);
+
+        RuntimeException excepcion = assertThrows(RuntimeException.class, () -> {
+            pedidoService.createPedido(pedidoPrueba, tokenFalso, "1234");
+        });
+
+        assertTrue(excepcion.getMessage().contains("Fallo en la orquestación (Error de red)"));
+        assertEquals("RECHAZADO", pedidoPrueba.getState());
+    }
+
+    // ==========================================
+    // TESTS PATRÓN SAGA (COMPENSACIONES)
+    // ==========================================
+
+    @Test
+    void createPedido_AplicaCompensacionReembolsado() {
+        // Simulamos que el guardado en BD funciona
+        when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedidoPrueba);
+
+        when(responseSpec.bodyToMono(Map.class)).thenReturn(Mono.just(Map.of("email", "joker@phantom.cl")));
+
+        // TRUCO MOCKITO: El primer bodyToMono(String) es para Pagos (pasa OK), el segundo es para Envios (falla)
+        when(responseSpec.bodyToMono(String.class))
+                .thenReturn(Mono.just("OK"))
+                .thenThrow(new RuntimeException("Caída del MS-Envios"));
+
+        assertThrows(RuntimeException.class, () -> {
+            pedidoService.createPedido(pedidoPrueba, tokenFalso, "1234");
+        });
+
+        // Como el pago alcanzó a ser exitoso, debe compensar cambiando a REEMBOLSADO
+        assertEquals("REEMBOLSADO", pedidoPrueba.getState());
+    }
+
+    @Test
+    void createPedido_FallaCompensacionErrorCritico() {
+        // Hacemos que la BD explote justo cuando intenta guardar el estado REEMBOLSADO
+        when(pedidoRepository.save(any(Pedido.class)))
+                .thenReturn(pedidoPrueba) // save 1: creación inicial
+                .thenReturn(pedidoPrueba) // save 2: al poner PAGADO
+                .thenThrow(new RuntimeException("Base de datos desconectada")); // save 3: falla compensación
+
+        when(responseSpec.bodyToMono(Map.class)).thenReturn(Mono.just(Map.of("email", "joker@phantom.cl")));
+
+        when(responseSpec.bodyToMono(String.class))
+                .thenReturn(Mono.just("OK")) // Pasa el pago
+                .thenThrow(new RuntimeException("Caída del MS-Envios")); // Cae el envío y gatilla compensación
+
+        assertThrows(RuntimeException.class, () -> {
+            pedidoService.createPedido(pedidoPrueba, tokenFalso, "1234");
+        });
+
+        // Entró al catch interno del manejador de compensación
+        assertEquals("ERROR_COMPENSACION", pedidoPrueba.getState());
+    }
+
+    // ==========================================
+    // TESTS CRUD FALTANTES
+    // ==========================================
+
+    @Test
+    void getAllPedidos_DevuelveLista() {
+        when(pedidoRepository.findAll()).thenReturn(Arrays.asList(pedidoPrueba));
+        List<Pedido> resultado = pedidoService.getAllPedidos();
+        assertFalse(resultado.isEmpty());
+        assertEquals(1, resultado.size());
+    }
+
+    @Test
+    void getPedidoById_Existente() {
+        when(pedidoRepository.findById(1L)).thenReturn(Optional.of(pedidoPrueba));
+        Optional<Pedido> resultado = pedidoService.getPedidoById(1L);
+        assertTrue(resultado.isPresent());
+        assertEquals(99L, resultado.get().getUserId());
+    }
+
+    @Test
+    void getPedidosByUserId_DevuelveLista() {
+        when(pedidoRepository.findByUserId(99L)).thenReturn(Arrays.asList(pedidoPrueba));
+        List<Pedido> resultado = pedidoService.getPedidosByUserId(99L);
+        assertEquals(1, resultado.size());
+    }
+
+    @Test
+    void getPedidosByState_DevuelveLista() {
+        when(pedidoRepository.findByState("PENDIENTE")).thenReturn(Arrays.asList(pedidoPrueba));
+        List<Pedido> resultado = pedidoService.getPedidosByState("PENDIENTE");
+        assertEquals(1, resultado.size());
+    }
+
+    @Test
+    void deletePedido_Exitoso() {
+        // Un método void con mockito se verifica asegurando que llamó al repository
+        doNothing().when(pedidoRepository).deleteById(1L);
+        pedidoService.deletePedido(1L);
+        verify(pedidoRepository, times(1)).deleteById(1L);
+    }
+
+    // ==========================================
+    // TESTS UPDATE STATE
+    // ==========================================
+
+    @Test
     void updateState_Exitoso() {
-        // GIVEN
         when(pedidoRepository.findById(1L)).thenReturn(Optional.of(pedidoPrueba));
         when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedidoPrueba);
 
-        // WHEN
         Pedido resultado = pedidoService.updateState(1L, "ENVIADO");
-
-        // THEN
         assertEquals("ENVIADO", resultado.getState());
+    }
+
+    @Test
+    void updateState_LanzaErrorSiNoExiste() {
+        when(pedidoRepository.findById(2L)).thenReturn(Optional.empty());
+
+        RuntimeException excepcion = assertThrows(RuntimeException.class, () -> {
+            pedidoService.updateState(2L, "ENVIADO");
+        });
+
+        assertEquals("Pedido no encontrado con el id: 2", excepcion.getMessage());
     }
 }

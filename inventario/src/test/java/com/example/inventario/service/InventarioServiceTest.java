@@ -10,10 +10,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class InventarioServiceTest {
@@ -23,6 +21,8 @@ public class InventarioServiceTest {
 
     @InjectMocks
     private InventarioService inventarioService;
+
+    // --- TESTS PARA: checkStock ---
 
     @Test
     void deberiaRetornarTrueCuandoHayStockSuficiente() {
@@ -42,14 +42,48 @@ public class InventarioServiceTest {
     void deberiaRetornarFalseCuandoNoHayStockSuficiente(){
         Inventario inventario = new Inventario();
         inventario.setProductId(1L);
-        inventario.setQuantity(3); // Solo tenemos 3
+        inventario.setQuantity(3);
 
         when(inventarioRepository.findByProductId(1L)).thenReturn(Optional.of(inventario));
 
         boolean resultado = inventarioService.checkStock(1L, 5);
+
         assertFalse(resultado);
+        verify(inventarioRepository).findByProductId(1L);
+    }
 
+    @Test
+    void deberiaRetornarFalseCuandoElProductoNoExiste() {
+        // Simulamos que el repositorio no encontró el producto
+        when(inventarioRepository.findByProductId(999L)).thenReturn(Optional.empty());
 
+        boolean resultado = inventarioService.checkStock(999L, 1);
 
+        assertFalse(resultado);
+        verify(inventarioRepository).findByProductId(999L);
+    }
+
+    // --- TESTS PARA: addStock ---
+
+    @Test
+    void deberiaAgregarStockCorrectamente() {
+        Inventario inventarioNuevo = new Inventario();
+        inventarioNuevo.setProductId(100L);
+        inventarioNuevo.setQuantity(50);
+
+        Inventario inventarioGuardado = new Inventario();
+        inventarioGuardado.setId(1L);
+        inventarioGuardado.setProductId(100L);
+        inventarioGuardado.setQuantity(50);
+
+        when(inventarioRepository.save(inventarioNuevo)).thenReturn(inventarioGuardado);
+
+        Inventario resultado = inventarioService.addStock(inventarioNuevo);
+
+        assertNotNull(resultado);
+        assertEquals(1L, resultado.getId());
+        assertEquals(100L, resultado.getProductId());
+        assertEquals(50, resultado.getQuantity());
+        verify(inventarioRepository).save(inventarioNuevo);
     }
 }

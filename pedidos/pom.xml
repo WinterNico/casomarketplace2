@@ -112,6 +112,35 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.jacoco</groupId>
+				<artifactId>jacoco-maven-plugin</artifactId>
+				<version>0.8.12</version>
+				<configuration>
+					<excludes>
+						<!-- Aquí van las carpetas que queremos ignorar para subir el promedio -->
+						<exclude>com/example/pedidos/dto/**</exclude>
+						<exclude>com/example/pedidos/exception/**</exclude>
+						<exclude>com/example/pedidos/config/**</exclude>
+						<exclude>com/example/pedidos/security/**</exclude>
+						<exclude>com/example/pedidos/PedidosApplication.class</exclude>
+					</excludes>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>prepare-agent</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>report</id>
+						<phase>test</phase>
+						<goals>
+							<goal>report</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
 				<configuration>

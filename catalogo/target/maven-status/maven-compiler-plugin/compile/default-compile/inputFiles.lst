@@ -1,9 +1,0 @@
-C:\Users\MP-Alumno\Desktop\casomarketplace2\catalogo\src\main\java\com\example\catalogo\CatalogoApplication.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\catalogo\src\main\java\com\example\catalogo\config\OpenApiConfig.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\catalogo\src\main\java\com\example\catalogo\config\SecurityConfig.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\catalogo\src\main\java\com\example\catalogo\controller\ProductoController.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\catalogo\src\main\java\com\example\catalogo\exception\GlobalExceptionHandler.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\catalogo\src\main\java\com\example\catalogo\model\Producto.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\catalogo\src\main\java\com\example\catalogo\repository\ProductoRepository.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\catalogo\src\main\java\com\example\catalogo\security\JwtTokenFilter.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\catalogo\src\main\java\com\example\catalogo\service\ProductoService.java

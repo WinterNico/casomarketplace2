@@ -40,7 +40,7 @@ public class ProductoControllerTest {
         producto.setNombre("Silla Ergonomica");
         producto.setPrecio(120000.0);
 
-        when(service.getProductoById(1L)).thenReturn(Optional.of(producto));
+        when(service.getProductoById(1L)).thenReturn(producto);
 
         mockMvc.perform(get("/api/v1/catalogo/1")
                 .accept(MediaTypes.HAL_JSON))

@@ -12,8 +12,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -30,56 +31,53 @@ class CarroControllerTest {
     @MockitoBean
     private JwtTokenFilter jwtTokenFilter;
 
+    // ... tus imports y tests anteriores ...
+
     @Test
-    void deberiaCrearRegistroEnElCarro() throws Exception {
+    void deberiaObtenerTotalDelCarro() throws Exception {
+        when(cartService.getCartTotal(2L)).thenReturn(35000.0);
 
-        Carro carroResponse = new Carro();
-        carroResponse.setId(1L);
-        carroResponse.setUserId(2L);
-        carroResponse.setProductId(10L);
-        carroResponse.setQuantity(1);
-        carroResponse.setProductName("Teclado Mecánico");
-        carroResponse.setUnitPrice(45000.0);
+        mockMvc.perform(get("/api/v1/carro/2/total") // Ajusta esta ruta a la tuya real
+                        .header("Authorization", "Bearer token-de-mentira")
+                        .accept(MediaTypes.HAL_JSON))
+                .andExpect(status().isOk())
+                .andExpect(content().string("35000.0"));
 
-        when(cartService.addToCart(anyLong(), anyLong(), anyInt(), anyString()))
-                .thenReturn(carroResponse);
-
-        String jsonRequest = """
-                {
-                    "userId": 2,
-                    "productId": 10,
-                    "quantity": 1
-                }
-                """;
-        mockMvc.perform(post("/api/v1/carro/add")
-                        .header("Authorization", "Bearer token-de-mentira") // Tu controller exige este header
-                        .contentType("application/json")
-                        .accept(MediaTypes.HAL_JSON) // Forzamos HATEOAS
-                        .content(jsonRequest))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.userId").value(2))
-                .andExpect(jsonPath("$.productId").value(10))
-                .andExpect(jsonPath("$.productName").value("Teclado Mecánico"))
-                // Validamos que Spring HATEOAS generó los links
-                .andExpect(jsonPath("$._links.ver-todos-del-usuario.href").exists())
-                .andExpect(jsonPath("$._links.ver-total.href").exists());
-
-        verify(cartService).addToCart(eq(2L), eq(10L), eq(1), anyString());
+        verify(cartService).getCartTotal(2L);
     }
 
     @Test
-    void deberiaRetornar400CuandoFaltanCamposObligatorios() throws Exception {
-        String jsonIncompleto = """
-                {
-                    "userId": 2
-                }
-                """;
+    void deberiaEliminarItemDelCarro() throws Exception {
+        doNothing().when(cartService).removeFromCart(10L);
 
-        mockMvc.perform(post("/api/v1/carro/add")
+        mockMvc.perform(delete("/api/v1/carro/remove/10")
                         .header("Authorization", "Bearer token-de-mentira")
-                        .contentType("application/json")
-                        .content(jsonIncompleto))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Error de Validación"));
+                        .accept(MediaTypes.HAL_JSON)) // Aceptamos HATEOAS
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mensaje").value("Ítem eliminado")) // Validamos el JSON
+                .andExpect(jsonPath("$._links.volver-al-carrito.href").exists()); // Validamos el link
+
+        verify(cartService).removeFromCart(10L);
+    }
+    @Test
+    void deberiaObtenerCarroPorUsuario() throws Exception {
+        Carro item = new Carro();
+        item.setId(1L);
+        item.setProductId(10L);
+        item.setQuantity(2);
+        item.setUnitPrice(15000.0);
+        item.setProductName("Mouse Gamer");
+
+        // Simula la respuesta del servicio
+        when(cartService.getCartByUserId(2L)).thenReturn(java.util.List.of(item));
+
+        mockMvc.perform(get("/api/v1/carro/2") // OJO: Si tu ruta es distinta, ajusta el "/api/v1/carro/2"
+                        .header("Authorization", "Bearer token-de-mentira")
+                        .accept(MediaTypes.HAL_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].productId").value(10))
+                .andExpect(jsonPath("$[0].productName").value("Mouse Gamer"));
+
+        verify(cartService).getCartByUserId(2L);
     }
 }

@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/carro") // <-- Agregamos el /v1/
+@RequestMapping("/api/v1/carro")
 @Slf4j
 @Tag(name = "Gestor de carro", description = "Microservicio para gestionar el carro del marketplace")
 public class CarroController {
@@ -46,6 +46,10 @@ public class CarroController {
     }
 
     @GetMapping("/{userId}")
+    @Operation(summary = "Obtener el carro de un usuario", description = "Devuelve la lista de todos los productos que un usuario específico tiene en su carro de compras")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Lista de productos obtenida exitosamente")
+    })
     public ResponseEntity<List<Carro>> getCart(@PathVariable Long userId) {
         List<Carro> listaCarros = cartService.getCartByUserId(userId);
         for (Carro carro : listaCarros) {
@@ -56,6 +60,11 @@ public class CarroController {
     }
 
     @DeleteMapping("/remove/{itemId}")
+    @Operation(summary = "Eliminar un ítem del carro", description = "Elimina un registro específico del carro utilizando el ID del ítem")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ítem eliminado correctamente del carro"),
+            @ApiResponse(responseCode = "404", description = "El ítem no fue encontrado")
+    })
     public ResponseEntity<EntityModel<java.util.Map<String, String>>> removeItem(@PathVariable Long itemId) {
         cartService.removeFromCart(itemId);
         java.util.Map<String, String> responseBody = java.util.Map.of("mensaje", "Ítem eliminado");
@@ -64,6 +73,10 @@ public class CarroController {
     }
 
     @GetMapping("/{userId}/total")
+    @Operation(summary = "Obtener el costo total del carro", description = "Calcula y retorna el valor total a pagar por todos los productos en el carro de un usuario")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Total calculado exitosamente")
+    })
     public ResponseEntity<Double> getTotal(@PathVariable Long userId) {
         return new ResponseEntity<>(cartService.getCartTotal(userId), HttpStatus.OK);
     }

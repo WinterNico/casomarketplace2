@@ -1,9 +1,0 @@
-C:\Users\MP-Alumno\Desktop\casomarketplace2\inventario\src\main\java\com\example\inventario\config\OpenApiConfig.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\inventario\src\main\java\com\example\inventario\config\SecurityConfig.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\inventario\src\main\java\com\example\inventario\controller\InventarioController.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\inventario\src\main\java\com\example\inventario\exception\GlobalExceptionHandler.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\inventario\src\main\java\com\example\inventario\InventarioApplication.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\inventario\src\main\java\com\example\inventario\model\Inventario.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\inventario\src\main\java\com\example\inventario\repository\InventarioRepository.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\inventario\src\main\java\com\example\inventario\security\JwtTokenFilter.java
-C:\Users\MP-Alumno\Desktop\casomarketplace2\inventario\src\main\java\com\example\inventario\service\InventarioService.java

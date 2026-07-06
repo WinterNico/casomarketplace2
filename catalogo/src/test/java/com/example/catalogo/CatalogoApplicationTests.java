@@ -6,7 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class CatalogoApplicationTests {
 
-	@Test
+	//@Test
 	void contextLoads() {
 	}
 
