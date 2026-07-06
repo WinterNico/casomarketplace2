@@ -1,9 +1,0 @@
-com\example\inventario\model\Inventario.class
-com\example\inventario\InventarioApplication.class
-com\example\inventario\config\SecurityConfig.class
-com\example\inventario\repository\InventarioRepository.class
-com\example\inventario\security\JwtTokenFilter.class
-com\example\inventario\service\InventarioService.class
-com\example\inventario\exception\GlobalExceptionHandler.class
-com\example\inventario\controller\InventarioController.class
-com\example\inventario\config\OpenApiConfig.class
