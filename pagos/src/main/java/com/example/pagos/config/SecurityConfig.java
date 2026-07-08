@@ -16,7 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // Inyectamos nuestro nuevo filtro
     private final JwtTokenFilter jwtTokenFilter;
 
     public SecurityConfig(JwtTokenFilter jwtTokenFilter) {
@@ -29,7 +28,6 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // El acceso libre para el registro y los errores
                         .requestMatchers(
                                 "/error"
                         ).permitAll()

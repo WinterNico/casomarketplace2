@@ -22,7 +22,6 @@ public class GlobalExceptionHandler {
         Map<String, String> response = new HashMap<>();
         response.put("error", ex.getMessage());
 
-        // Usamos BAD_REQUEST o NOT_FOUND dependiendo de si es un error general
         HttpStatus status = ex.getMessage().contains("no encontrado") ? HttpStatus.NOT_FOUND : HttpStatus.INTERNAL_SERVER_ERROR;
 
         return new ResponseEntity<>(response, status);

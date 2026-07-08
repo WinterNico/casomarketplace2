@@ -29,7 +29,6 @@ public class CarroService {
         log.info("Iniciando validación de producto {} en Catálogo...", productId);
         ProductoDTO producto;
         try {
-            // Le pasamos el token al cliente del catálogo
             producto = catalogoClient.getProducto(productId, token);
             log.info("Producto encontrado en catálogo: {}", producto.getNombre());
         } catch (Exception e) {
@@ -38,7 +37,6 @@ public class CarroService {
         }
 
         log.info("Verificando stock para {} unidades del producto {}...", quantity, productId);
-        // Le pasamos el token al cliente de inventario
         Boolean isStockAvailable = inventarioClient.checkStock(productId, quantity, token);
 
         if (Boolean.FALSE.equals(isStockAvailable)) {

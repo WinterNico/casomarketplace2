@@ -9,7 +9,6 @@ public class UsuarioResponse {
 
     private List<RolResponse> roles;
 
-    // Getters y Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getEmail() { return email; }
@@ -20,7 +19,6 @@ public class UsuarioResponse {
     public List<RolResponse> getRoles() { return roles; }
     public void setRoles(List<RolResponse> roles) { this.roles = roles; }
 
-    // La mini-clase para atrapar el nombre adentro de la lista
     public static class RolResponse {
         private String nombre;
         private Long id;

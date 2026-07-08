@@ -11,7 +11,6 @@ public class PagoResponse {
         this.mensaje = mensaje;
     }
 
-    // Getters
     public String getTransaccionId() { return transaccionId; }
     public String getEstado() { return estado; }
     public String getMensaje() { return mensaje; }

@@ -22,7 +22,6 @@ public class InventarioServiceTest {
     @InjectMocks
     private InventarioService inventarioService;
 
-    // --- TESTS PARA: checkStock ---
 
     @Test
     void deberiaRetornarTrueCuandoHayStockSuficiente() {
@@ -54,7 +53,6 @@ public class InventarioServiceTest {
 
     @Test
     void deberiaRetornarFalseCuandoElProductoNoExiste() {
-        // Simulamos que el repositorio no encontró el producto
         when(inventarioRepository.findByProductId(999L)).thenReturn(Optional.empty());
 
         boolean resultado = inventarioService.checkStock(999L, 1);
@@ -63,7 +61,6 @@ public class InventarioServiceTest {
         verify(inventarioRepository).findByProductId(999L);
     }
 
-    // --- TESTS PARA: addStock ---
 
     @Test
     void deberiaAgregarStockCorrectamente() {

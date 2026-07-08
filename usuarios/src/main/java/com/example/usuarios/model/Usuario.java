@@ -3,7 +3,7 @@ package com.example.usuarios.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.hateoas.RepresentationModel; // <-- IMPORTANTE
+import org.springframework.hateoas.RepresentationModel;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -38,7 +38,7 @@ public class Usuario extends RepresentationModel<Usuario> {
     @Column(nullable = false)
     private LocalDateTime registrationDate;
 
-    // ESTO SIRVE PARA RELACION CON ROLES //
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "usuario_rol",
@@ -47,12 +47,10 @@ public class Usuario extends RepresentationModel<Usuario> {
     )
     private Set<Rol> roles = new HashSet<>();
 
-    // Metodo utilitario para agregar roles
     public void agregarRol(Rol rol) {
         this.roles.add(rol);
     }
 
-    // Se ejecuta ANTES de insertar en la BD
     @PrePersist
     public void prePersist() {
         this.registrationDate = LocalDateTime.now();

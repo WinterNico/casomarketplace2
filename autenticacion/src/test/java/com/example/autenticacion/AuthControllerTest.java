@@ -48,7 +48,7 @@ class AuthControllerTest {
         mockMvc.perform(post("/api/v1/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isOk()) // Esperamos un 200 OK
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("$.token").value("token_falso_super_seguro"));
     }
 }

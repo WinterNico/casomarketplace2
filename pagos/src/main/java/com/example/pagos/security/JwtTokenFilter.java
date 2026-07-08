@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 @Component
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-    // Misma contra
     private final String jwtSecret = "EstaEsUnaClaveSecretaSuperSeguraParaElMarketplaceDuoc2026!";
     private static final Logger log = LoggerFactory.getLogger(JwtTokenFilter.class);
 
@@ -33,7 +32,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            String token = authHeader.substring(7); // Le cortamos la palabra "Bearer "
+            String token = authHeader.substring(7);
 
             try {
                 Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
@@ -47,7 +46,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 String email = claims.getSubject();
                 String rol = claims.get("rol", String.class);
 
-                // Le avisamos a Spring Security que el usuario es válido
+
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         email,
                         null,

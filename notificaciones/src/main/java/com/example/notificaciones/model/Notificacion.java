@@ -18,10 +18,10 @@ public class Notificacion {
 
     @PrePersist
     protected void onCreate() {
-        this.fechaEnvio = LocalDateTime.now(); // Guarda la fecha exacta automáticamente
+        this.fechaEnvio = LocalDateTime.now();
     }
 
-    // Getters y Setters
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
     public String getEmailDestino() { return emailDestino; }

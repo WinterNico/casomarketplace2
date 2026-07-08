@@ -1,5 +1,6 @@
 package com.example.envio.service;
 
+import com.example.envio.exception.EnvioNotFoundException;
 import com.example.envio.model.Envio;
 import com.example.envio.repository.EnvioRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,6 @@ public class EnvioService {
 
     public Envio getShippingByOrder(Long orderId) {
         return envioRepository.findByOrderId(orderId)
-                .orElseThrow(() -> new RuntimeException("No se encontró información de envío para la orden ID: " + orderId));
+                .orElseThrow(() -> new EnvioNotFoundException("No se encontró información de envío para la orden ID: " + orderId));
     }
 }

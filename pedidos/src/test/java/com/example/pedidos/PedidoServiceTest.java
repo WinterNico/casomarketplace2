@@ -66,28 +66,23 @@ class PedidoServiceTest {
     void setUp() {
         pedidoPrueba = new Pedido();
         pedidoPrueba.setId(1L);
-        pedidoPrueba.setUserId(99L); // ID tipo Joker
+        pedidoPrueba.setUserId(99L);
         pedidoPrueba.setTotal(new BigDecimal("150000.0"));
 
-        // Preparación del WebClient Mock
         when(webClientBuilder.build()).thenReturn(webClient);
 
-        // GET Mocks
         when(webClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.uri(anyString())).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.header(anyString(), anyString())).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
 
-        // POST Mocks
         when(webClient.post()).thenReturn(requestBodyUriSpec);
         when(requestBodyUriSpec.uri(anyString())).thenReturn(requestBodySpec);
         when(requestBodySpec.header(anyString(), anyString())).thenReturn(requestBodySpec);
         when(requestBodySpec.bodyValue(any())).thenReturn(requestHeadersSpec);
     }
 
-    // ==========================================
-    // TESTS CAMINO FELIZ
-    // ==========================================
+
     @Test
     void createPedido_OrquestacionExitosa() {
         when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedidoPrueba);
@@ -99,9 +94,6 @@ class PedidoServiceTest {
         verify(pedidoRepository, atLeastOnce()).save(any(Pedido.class));
     }
 
-    // ==========================================
-    // TESTS CAMINOS TRISTES Y EXCEPCIONES WEBCLIENT
-    // ==========================================
 
     @Test
     void createPedido_RechazadoPorExcepcionGenerica() {
@@ -113,14 +105,13 @@ class PedidoServiceTest {
         });
 
         assertTrue(excepcion.getMessage().contains("No se pudo completar la compra"));
-        assertEquals("RECHAZADO", pedidoPrueba.getState()); // No alcanzó a pagar
+        assertEquals("RECHAZADO", pedidoPrueba.getState());
     }
 
     @Test
     void createPedido_FallaPorWebClientResponseException() {
         when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedidoPrueba);
 
-        // Simulamos un error 404 o 500 del servicio externo
         WebClientResponseException errorHttp = WebClientResponseException.create(404, "Not Found", null, null, null);
         when(responseSpec.bodyToMono(Map.class)).thenThrow(errorHttp);
 
@@ -136,7 +127,6 @@ class PedidoServiceTest {
     void createPedido_FallaPorWebClientRequestException() {
         when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedidoPrueba);
 
-        // Simulamos un error de red (TimeOut o servicio caído)
         WebClientRequestException errorRed = new WebClientRequestException(new RuntimeException("Timeout"), HttpMethod.GET,
                 URI.create("http://localhost"),
                 new HttpHeaders());
@@ -150,18 +140,13 @@ class PedidoServiceTest {
         assertEquals("RECHAZADO", pedidoPrueba.getState());
     }
 
-    // ==========================================
-    // TESTS PATRÓN SAGA (COMPENSACIONES)
-    // ==========================================
 
     @Test
     void createPedido_AplicaCompensacionReembolsado() {
-        // Simulamos que el guardado en BD funciona
         when(pedidoRepository.save(any(Pedido.class))).thenReturn(pedidoPrueba);
 
         when(responseSpec.bodyToMono(Map.class)).thenReturn(Mono.just(Map.of("email", "joker@phantom.cl")));
 
-        // TRUCO MOCKITO: El primer bodyToMono(String) es para Pagos (pasa OK), el segundo es para Envios (falla)
         when(responseSpec.bodyToMono(String.class))
                 .thenReturn(Mono.just("OK"))
                 .thenThrow(new RuntimeException("Caída del MS-Envios"));
@@ -170,35 +155,30 @@ class PedidoServiceTest {
             pedidoService.createPedido(pedidoPrueba, tokenFalso, "1234");
         });
 
-        // Como el pago alcanzó a ser exitoso, debe compensar cambiando a REEMBOLSADO
         assertEquals("REEMBOLSADO", pedidoPrueba.getState());
     }
 
     @Test
     void createPedido_FallaCompensacionErrorCritico() {
-        // Hacemos que la BD explote justo cuando intenta guardar el estado REEMBOLSADO
         when(pedidoRepository.save(any(Pedido.class)))
-                .thenReturn(pedidoPrueba) // save 1: creación inicial
-                .thenReturn(pedidoPrueba) // save 2: al poner PAGADO
-                .thenThrow(new RuntimeException("Base de datos desconectada")); // save 3: falla compensación
+                .thenReturn(pedidoPrueba)
+                .thenReturn(pedidoPrueba)
+                .thenThrow(new RuntimeException("Base de datos desconectada"));
 
         when(responseSpec.bodyToMono(Map.class)).thenReturn(Mono.just(Map.of("email", "joker@phantom.cl")));
 
         when(responseSpec.bodyToMono(String.class))
-                .thenReturn(Mono.just("OK")) // Pasa el pago
-                .thenThrow(new RuntimeException("Caída del MS-Envios")); // Cae el envío y gatilla compensación
+                .thenReturn(Mono.just("OK"))
+                .thenThrow(new RuntimeException("Caída del MS-Envios"));
 
         assertThrows(RuntimeException.class, () -> {
             pedidoService.createPedido(pedidoPrueba, tokenFalso, "1234");
         });
 
-        // Entró al catch interno del manejador de compensación
         assertEquals("ERROR_COMPENSACION", pedidoPrueba.getState());
     }
 
-    // ==========================================
-    // TESTS CRUD FALTANTES
-    // ==========================================
+
 
     @Test
     void getAllPedidos_DevuelveLista() {
@@ -232,15 +212,11 @@ class PedidoServiceTest {
 
     @Test
     void deletePedido_Exitoso() {
-        // Un método void con mockito se verifica asegurando que llamó al repository
         doNothing().when(pedidoRepository).deleteById(1L);
         pedidoService.deletePedido(1L);
         verify(pedidoRepository, times(1)).deleteById(1L);
     }
 
-    // ==========================================
-    // TESTS UPDATE STATE
-    // ==========================================
 
     @Test
     void updateState_Exitoso() {

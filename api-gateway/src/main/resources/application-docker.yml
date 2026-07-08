@@ -15,7 +15,6 @@ eureka:
   instance:
     prefer-ip-address: true
     
-# Añadimos niveles de log para que el entorno Docker sea más robusto
 logging:
   level:
     org.springframework.cloud.gateway: INFO

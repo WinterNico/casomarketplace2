@@ -36,7 +36,6 @@ public class EnvioController {
         log.info("Pedido recibido para procesar envío. Order ID: {}", request.getId());
         envioService.createShipping(request.getId());
 
-        // Devolvemos un JSON bonito
         Map<String, String> response = new HashMap<>();
         response.put("mensaje", "Pedido recibido correctamente en el microservicio de envios");
 

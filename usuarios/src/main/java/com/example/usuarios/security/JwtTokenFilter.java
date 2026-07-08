@@ -23,7 +23,6 @@ import org.slf4j.Logger;
 @Component
 public class JwtTokenFilter extends OncePerRequestFilter {
 
-    // La clave es igual que en otros microservicios
     private final String jwtSecret = "EstaEsUnaClaveSecretaSuperSeguraParaElMarketplaceDuoc2026!";
     private static final Logger log = LoggerFactory.getLogger(JwtTokenFilter.class);
 
@@ -31,17 +30,14 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        // Buscamos el token en la cabecera de la petición
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7); // Le cortamos la palabra "Bearer "
 
             try {
-                // Preparamos la llave para abrirlo
                 Key key = Keys.hmacShaKeyFor(jwtSecret.getBytes());
 
-                // Abrimos el token y sacamos los datos que guardamos antes
                 Claims claims = Jwts.parserBuilder()
                         .setSigningKey(key)
                         .build()
@@ -51,7 +47,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                 String email = claims.getSubject();
                 String rol = claims.get("rol", String.class);
 
-                // Le avisamos a Spring Security que el usuario es valido
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                         email,
                         null,
@@ -65,7 +60,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             }
         }
 
-        // Dejamos que la petición siga su curso hacia el Controlador
         filterChain.doFilter(request, response);
     }
 }

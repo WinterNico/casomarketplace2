@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    // Unificacion en esta parte
+
     @ExceptionHandler(WebClientResponseException.class)
     public ResponseEntity<Map<String, String>> handleWebClientException(WebClientResponseException ex) {
         log.warn("Fallo de comunicación remota. Código: {} - Mensaje: {}", ex.getStatusCode(), ex.getStatusText());

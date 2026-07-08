@@ -24,4 +24,12 @@ public class GlobalExceptionHandler {
         response.put("error", ex.getMessage());
         return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(EnvioNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleEnvioNotFound(EnvioNotFoundException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
 }

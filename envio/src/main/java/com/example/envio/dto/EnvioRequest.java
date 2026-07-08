@@ -11,6 +11,6 @@ import jakarta.validation.constraints.NotNull;
 @AllArgsConstructor
 public class EnvioRequest {
 
-    @NotNull(message ="id is mandatory")
+    @NotNull(message ="El id es obligatorio")
     private Long id;
 }

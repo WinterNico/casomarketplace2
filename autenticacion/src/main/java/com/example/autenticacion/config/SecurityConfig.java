@@ -31,7 +31,6 @@ public class SecurityConfig {
         return http.build();
     }
 
-    // Declaramos el PasswordEncoder aquí para que el AuthService pueda usarlo
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();

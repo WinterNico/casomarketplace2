@@ -25,19 +25,16 @@ class NotificacionServiceTest {
     @InjectMocks
     private NotificacionService notificacionService;
 
-    // Variables de prueba
     private NotificacionRequest requestPrueba;
     private Notificacion notificacionFalsaBD;
 
     @BeforeEach
     void setUp() {
-        // Preparamos los datos de envío
         requestPrueba = new NotificacionRequest();
         requestPrueba.setEmailDestino("Duvaldaymenromero@gmail.com");
         requestPrueba.setAsunto("Confirmación de Compra");
         requestPrueba.setMensaje("Tu pago ha sido aprobado. Preparando el bajo para envío.");
 
-        // Preparamos cómo se vería la notificación después de guardarse (con ID generado)
         notificacionFalsaBD = new Notificacion();
         notificacionFalsaBD.setId(10L);
         notificacionFalsaBD.setEmailDestino("Duvaldaymenromero@gmail.com");
@@ -47,15 +44,12 @@ class NotificacionServiceTest {
 
     @Test
     void enviarYGuardar_Exitoso() {
-        // "Cuando intenten guardar cualquier notificación, devuelve nuestra notificación falsa con ID 10"
         when(notificacionRepository.save(any(Notificacion.class))).thenReturn(notificacionFalsaBD);
 
-        // Ejecutamos el servicio
         Notificacion resultado = notificacionService.enviarYGuardar(requestPrueba);
 
-        // Comprobamos que todo salió perfecto
         assertNotNull(resultado);
-        assertEquals(10L, resultado.getId()); // Verificamos que Mockito le asignó el ID simulado
+        assertEquals(10L, resultado.getId());
         assertEquals("Duvaldaymenromero@gmail.com", resultado.getEmailDestino());
 
         verify(notificacionRepository, times(1)).save(any(Notificacion.class));

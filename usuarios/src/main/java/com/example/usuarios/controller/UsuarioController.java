@@ -50,7 +50,6 @@ public class UsuarioController {
     public ResponseEntity<Usuario> obtenerUsuarioPorEmail(@PathVariable String email) {
         log.info("Petición REST para buscar usuario por email: {}", email);
         Usuario usuario = usuarioService.buscarPorEmail(email);
-        // Se le agrega el link HATEOAS apuntando a la búsqueda por ID
         usuario.add(linkTo(methodOn(UsuarioController.class).obtenerUsuarioPorId(usuario.getId())).withSelfRel());
         return new ResponseEntity<>(usuario, HttpStatus.OK);
     }

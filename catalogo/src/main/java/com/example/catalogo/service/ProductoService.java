@@ -5,7 +5,6 @@ import com.example.catalogo.repository.ProductoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 public class ProductoService {
@@ -19,7 +18,6 @@ public class ProductoService {
     public Producto addProducto(Producto producto){
         return repository.save(producto);
     }
-    // Asegúrate de tener estos métodos en tu ProductoService.java
     public void deleteProducto(Long id) {
         repository.deleteById(id);
     }
@@ -28,7 +26,6 @@ public class ProductoService {
         Producto p = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-        // Actualizamos los campos que sí tienes en tu modelo
         p.setNombre(productoDetalles.getNombre());
         p.setDescripcion(productoDetalles.getDescripcion());
         p.setPrecio(productoDetalles.getPrecio());

@@ -12,7 +12,6 @@ public class DataInitializer {
     @Bean
     public CommandLineRunner initRoles(RolRepository rolRepository) {
         return args -> {
-            // Verificamos si el rol no existe antes de guardarlo para evitar duplicados
             if (rolRepository.findByNombre("ROLE_CLIENTE").isEmpty()) {
                 rolRepository.save(new Rol("ROLE_CLIENTE"));
                 System.out.println("Rol ROLE_CLIENTE creado automáticamente.");

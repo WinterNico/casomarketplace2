@@ -5,14 +5,13 @@ import com.example.catalogo.model.Producto;
 import com.example.catalogo.service.ProductoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/catalogo")
@@ -28,7 +27,6 @@ public class ProductoController {
     public ResponseEntity<Producto> getProducto(@PathVariable Long id){
         log.info("Petición recibida para buscar producto ID: {}", id);
 
-        // El controlador ya no valida el Optional. Delega la responsabilidad al servicio.
         Producto producto = service.getProductoById(id);
 
         producto.add(linkTo(methodOn(ProductoController.class).getProducto(id)).withSelfRel());
@@ -39,7 +37,7 @@ public class ProductoController {
 
     @PostMapping("/add")
     @Operation(summary = "Agregar producto", description = "Registra un nuevo producto en el catálogo")
-    public ResponseEntity<Producto> addProducto(@RequestBody Producto producto){
+    public ResponseEntity<Producto> addProducto(@Valid @RequestBody Producto producto){
         log.info("Petición recibida para agregar nuevo producto: {}", producto.getNombre());
         Producto nuevoProducto = service.addProducto(producto);
 

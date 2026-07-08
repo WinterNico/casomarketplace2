@@ -5,10 +5,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.Singular;
 
 
-// ESTA CLASE ES PARA HACER REGISTRO DE LO QUE RECIBE
+
 @Getter
 @Setter
 public class RegistroRequest {
@@ -29,7 +28,6 @@ public class RegistroRequest {
 
     private String phone;
 
-    // METODOS //
     public String getName() {
         return name;
     }

@@ -19,15 +19,14 @@ public class WebClientConfig {
     @LoadBalanced
     @Bean
     public WebClient.Builder webClientBuilder(){
-        // Configuramos tiempos de espera: 5 segundos de límite para cada etapa
         HttpClient httpClient = HttpClient.create()
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000) // Límite para conectarse al servicio
-                .responseTimeout(Duration.ofMillis(5000)) // Límite para obtener respuesta
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
+                .responseTimeout(Duration.ofMillis(5000))
                 .doOnConnected(conn ->
                         conn.addHandlerLast(new ReadTimeoutHandler(5000, TimeUnit.MILLISECONDS))
                                 .addHandlerLast(new WriteTimeoutHandler(5000, TimeUnit.MILLISECONDS)));
 
-        // Inyectamos el cliente configurado en nuestro WebClient Builder
+
         return WebClient.builder()
                 .clientConnector(new ReactorClientHttpConnector(httpClient));
     }

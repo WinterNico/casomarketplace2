@@ -20,14 +20,12 @@ public class Pedido extends RepresentationModel<Pedido> {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Guardamos el ID del usuario que viene del microservicio de "usuarios"
     @Column(name = "usuario_id", nullable = false)
     private Long userId;
 
     @Column(name = "fecha-creacion", nullable = false)
     private LocalDateTime creationDate;
 
-    // Podría ser un String
     @Column(nullable = false)
     private String state;
 

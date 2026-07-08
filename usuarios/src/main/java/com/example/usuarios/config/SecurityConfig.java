@@ -16,7 +16,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    // se pasa el filtro que se creo
     private final JwtTokenFilter jwtTokenFilter;
 
     public SecurityConfig(JwtTokenFilter jwtTokenFilter) {
@@ -29,19 +28,16 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // Acessos libres para ciertos PATH
                         .requestMatchers(
                                 "/api/v1/usuarios/registro",
-                                "/api/v1/usuarios/buscar/**", // <--- Esta es la llave
+                                "/api/v1/usuarios/buscar/**",
                                 "/error",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
                                 "/swagger-ui.html"
                         ).permitAll()
-                        // Necesitara token
                         .anyRequest().authenticated()
                 )
-                // Se le agrega el filtro
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

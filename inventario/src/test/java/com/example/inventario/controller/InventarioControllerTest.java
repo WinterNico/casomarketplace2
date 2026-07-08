@@ -40,7 +40,7 @@ class InventarioControllerTest {
                         .accept(MediaTypes.HAL_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.disponible").value(true))
-                .andExpect(jsonPath("$._links.self.href").exists()); // Validar HATEOAS
+                .andExpect(jsonPath("$._links.self.href").exists());
 
         verify(inventarioService).checkStock(100L, 2);
     }
@@ -68,7 +68,7 @@ class InventarioControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.productId").value(100))
                 .andExpect(jsonPath("$.quantity").value(50))
-                .andExpect(jsonPath("$._links.verificar-stock.href").exists()); // Validar HATEOAS
+                .andExpect(jsonPath("$._links.verificar-stock.href").exists());
 
         verify(inventarioService).addStock(any(Inventario.class));
     }

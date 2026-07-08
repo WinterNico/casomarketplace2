@@ -18,7 +18,6 @@ public class PagoRequest {
     @Size(min = 16, max = 16, message = "La tarjeta debe tener 16 dígitos")
     private String numeroTarjeta;
 
-    // Getters y Setters
     public Long getIdPedido() { return idPedido; }
     public void setIdPedido(Long idPedido) { this.idPedido = idPedido; }
     public Double getMonto() { return monto; }

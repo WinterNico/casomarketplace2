@@ -8,13 +8,13 @@ class UsuarioTest {
     void deberiaEjecutarPrePersistYAgregarRol() {
         Usuario usuario = new Usuario();
         usuario.setActivo(null);
-        usuario.prePersist(); // Validamos que se asigne fecha y estado activo
+        usuario.prePersist();
 
         assertNotNull(usuario.getRegistrationDate());
         assertTrue(usuario.getActivo());
 
         Rol rol = new Rol("ROLE_ADMIN");
-        usuario.agregarRol(rol); // Validamos el método de lista
+        usuario.agregarRol(rol);
         assertTrue(usuario.getRoles().contains(rol));
     }
 }

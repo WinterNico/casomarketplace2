@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,6 @@ public class InventarioController {
     @Autowired
     private InventarioService inventarioService;
 
-    // Ahora devolvemos un Map para que se transforme en un JSON bonito
     @GetMapping("/{productId}")
     @Operation(summary = "Consultar stock", description = "Verifica si hay stock suficiente para un producto")
     public ResponseEntity<EntityModel<Map<String, Boolean>>> checkStock(
@@ -50,7 +50,7 @@ public class InventarioController {
     @PostMapping("/add")
     @Operation(summary = "Agregar stock", description = "Ingresa nuevo stock a la bodega")
     @ApiResponses(value = { @ApiResponse(responseCode = "201", description = "Stock agregado exitosamente") })
-    public ResponseEntity<Inventario> addStock(@RequestBody Inventario inventory) {
+    public ResponseEntity<Inventario> addStock(@Valid @RequestBody Inventario inventory) {
         log.info("Ingresando stock a la bodega. Producto ID: {}, Cantidad: {}", inventory.getProductId(), inventory.getQuantity());
 
         Inventario saved = inventarioService.addStock(inventory);

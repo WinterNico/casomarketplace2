@@ -50,7 +50,7 @@ spring:
               - Path=/api/v1/envios/**
 
         - id: inventario-service
-          uri: lb://inventario
+          uri: lb://inventory
           predicates:
               - Path=/api/v1/inventory/**
 

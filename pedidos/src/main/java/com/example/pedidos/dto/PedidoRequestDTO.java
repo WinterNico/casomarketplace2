@@ -18,11 +18,9 @@ public class PedidoRequestDTO {
     private String tarjeta;
 
 
-    //Costructores vacios y con parametros
 
     public PedidoRequestDTO(){}
 
-    //getters y setters
     public Long getUserId(){
         return userId;
     }

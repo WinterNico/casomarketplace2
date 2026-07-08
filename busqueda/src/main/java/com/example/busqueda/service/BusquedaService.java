@@ -18,7 +18,7 @@ public class BusquedaService {
         this.webClientBuilder = webClientBuilder;
     }
 
-    // Fíjate que ahora recibe el token
+
     public Mono<OrderResponseDTO> getDetalleCompleto(Long id, String token) {
         log.info("Iniciando flujo de búsqueda para el pedido ID: {}", id);
 
@@ -26,20 +26,25 @@ public class BusquedaService {
         WebClient envioClient = webClientBuilder.baseUrl("http://envios/api/v1/envios").build();
         WebClient usuarioClient = webClientBuilder.baseUrl("http://usuarios/api/v1/usuarios").build();
 
-        // Buscamos el pedido y pasamos token
+
         return pedidoClient.get().uri("/{id}", id)
-                .header("Authorization", token) // <--- TOKEN AQUÍ
+                .header("Authorization", token)
                 .retrieve()
                 .bodyToMono(Map.class)
                 .flatMap(pedido -> {
                     Long userId = Long.valueOf(pedido.get("userId").toString());
                     log.info("Pedido encontrado. El dueño es el Usuario ID: {}. Solicitando datos en paralelo...", userId);
 
-                    // Buscamos Envíos y Usuarios, token tmb
+
                     return Mono.zip(
                             envioClient.get().uri("/order/{id}", id)
                                     .header("Authorization", token)
-                                    .retrieve().bodyToMono(Map.class),
+                                    .retrieve()
+                                    .bodyToMono(Map.class)
+                                    .onErrorResume(e -> {
+                                        log.warn("No se encontró envío para la orden ID {}. Razón: {}", id, e.getMessage());
+                                        return Mono.just(Map.of("status", "PENDIENTE", "trackingNumber", "N/A"));
+                                    }),
                             usuarioClient.get().uri("/buscar/{id}", userId)
                                     .header("Authorization", token)
                                     .retrieve().bodyToMono(Map.class)
@@ -47,7 +52,7 @@ public class BusquedaService {
                         Map envio = tuple.getT1();
                         Map usuario = tuple.getT2();
 
-                        // Ensamblamos todo
+
                         return new OrderResponseDTO(
                                 Long.valueOf(pedido.get("id").toString()),
                                 userId,

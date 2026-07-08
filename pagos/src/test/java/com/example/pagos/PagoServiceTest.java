@@ -34,12 +34,12 @@ class PagoServiceTest {
         pagoAprobadoRequest = new PagoRequest();
         pagoAprobadoRequest.setIdPedido(1L);
         pagoAprobadoRequest.setMonto(150000.0);
-        pagoAprobadoRequest.setNumeroTarjeta("1234567812345678"); // Tarjeta buena
+        pagoAprobadoRequest.setNumeroTarjeta("1234567812345678");
 
         pagoRechazadoRequest = new PagoRequest();
         pagoRechazadoRequest.setIdPedido(2L);
         pagoRechazadoRequest.setMonto(50000.0);
-        pagoRechazadoRequest.setNumeroTarjeta("1111222233334444"); // La tarjeta mala
+        pagoRechazadoRequest.setNumeroTarjeta("1111222233334444");
     }
 
     @Test

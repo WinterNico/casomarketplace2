@@ -11,15 +11,14 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.*;
+
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CarroController.class)
-@AutoConfigureMockMvc(addFilters = false) // Apagamos la seguridad tal como lo hace el profe
+@AutoConfigureMockMvc(addFilters = false)
 class CarroControllerTest {
 
     @Autowired
@@ -31,13 +30,11 @@ class CarroControllerTest {
     @MockitoBean
     private JwtTokenFilter jwtTokenFilter;
 
-    // ... tus imports y tests anteriores ...
-
     @Test
     void deberiaObtenerTotalDelCarro() throws Exception {
         when(cartService.getCartTotal(2L)).thenReturn(35000.0);
 
-        mockMvc.perform(get("/api/v1/carro/2/total") // Ajusta esta ruta a la tuya real
+        mockMvc.perform(get("/api/v1/carro/2/total")
                         .header("Authorization", "Bearer token-de-mentira")
                         .accept(MediaTypes.HAL_JSON))
                 .andExpect(status().isOk())
@@ -52,10 +49,10 @@ class CarroControllerTest {
 
         mockMvc.perform(delete("/api/v1/carro/remove/10")
                         .header("Authorization", "Bearer token-de-mentira")
-                        .accept(MediaTypes.HAL_JSON)) // Aceptamos HATEOAS
+                        .accept(MediaTypes.HAL_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.mensaje").value("Ítem eliminado")) // Validamos el JSON
-                .andExpect(jsonPath("$._links.volver-al-carrito.href").exists()); // Validamos el link
+                .andExpect(jsonPath("$.mensaje").value("Ítem eliminado"))
+                .andExpect(jsonPath("$._links.volver-al-carrito.href").exists());
 
         verify(cartService).removeFromCart(10L);
     }
@@ -68,10 +65,9 @@ class CarroControllerTest {
         item.setUnitPrice(15000.0);
         item.setProductName("Mouse Gamer");
 
-        // Simula la respuesta del servicio
         when(cartService.getCartByUserId(2L)).thenReturn(java.util.List.of(item));
 
-        mockMvc.perform(get("/api/v1/carro/2") // OJO: Si tu ruta es distinta, ajusta el "/api/v1/carro/2"
+        mockMvc.perform(get("/api/v1/carro/2")
                         .header("Authorization", "Bearer token-de-mentira")
                         .accept(MediaTypes.HAL_JSON))
                 .andExpect(status().isOk())
