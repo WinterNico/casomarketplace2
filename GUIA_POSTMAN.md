@@ -1,10 +1,9 @@
-
-Nota para el equipo: Recuerden reemplazar el {{TOKEN}} en la 
+reemplazar el {{TOKEN}} en la 
 pestaña "Authorization -> Bearer Token" de Postman en todos
 los pasos siguientes después de hacer el Login.
 
 ---------------------------------------------------------
-1. AUTENTICACIÓN (Registro de cliente)
+1. CREAR USUARIO (Registro de cliente)
 ---------------------------------------------------------
 [POST] http://localhost:9090/api/v1/usuarios/registro
 
@@ -78,17 +77,6 @@ los pasos siguientes después de hacer el Login.
 
 {
   "id": 1
-}
-
----------------------------------------------------------
-8. NOTIFICACIONES (Simular envío de correo)
----------------------------------------------------------
-[POST] http://localhost:9090/api/v1/notificaciones/enviar
-
-{
-  "email": "makoto@duocuc.cl",
-  "asunto": "Confirmación de Pedido",
-  "mensaje": "Tu pedido #1 ha sido procesado y el envío está en preparación."
 }
 
 ---------------------------------------------------------
